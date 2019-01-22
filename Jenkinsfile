@@ -4,7 +4,8 @@ pipeline {
     stage('reset') {
       steps {
         echo 'Reset stage'
-        python $WORKSPACE/scripts/regenPiCluster.py
+        chmod 777 scripts/regenPiCluster
+        ./scripts/regenPiCluster.py
       }
     }
   }
