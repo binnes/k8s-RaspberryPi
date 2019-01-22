@@ -4,7 +4,7 @@ pipeline {
     stage('reset') {
       steps {
         echo 'Reset stage'
-        sh 'echo "Hello"'
+        python $WORKSPACE/scripts/regenPiCluster.py
       }
     }
   }
