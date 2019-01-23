@@ -39,7 +39,7 @@ for sysType in config["testMachines"]["systems"]:
             tar.close()
             # Fix up /etc/hostname
             file = open(fsRoot+'/'+host["name"]+'_new'+'/etc/hostname','w')
-            file.write(host)
+            file.write(host["name"])
             file.close()
             # Fix up /etc/hosts
             fileIn = open(fsRoot+'/'+host["name"]+'_new'+'/etc/hosts')
