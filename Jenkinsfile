@@ -4,7 +4,8 @@ pipeline {
     stage('reset') {
       steps {
         echo 'Reset stage'
-        sh label: '', script: '''chmod 777 scripts/regenPiCluster.py && python ./scripts/regenPiCluster.py'''
+        sh script: '''pip install paramiko''' 
+        sh label: '', script: '''chmod +x scripts/regenPiCluster.py && python ./scripts/regenPiCluster.py'''
       }
     }
   }
