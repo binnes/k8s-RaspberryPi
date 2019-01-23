@@ -3,6 +3,7 @@ pipeline {
             filename 'Dockerfile'
             args '-v /mnt/ssd:/mnt/ssd'
            }
+  }
   stages {
     stage('reset') {
       steps {
