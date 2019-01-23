@@ -60,7 +60,7 @@ for sysType in config["testMachines"]["systems"]:
             # deleting previous one if it exist 
             if os.path.exists(fsRoot+'/'+host["name"] + '_old'):
                 os.system('rmdir -rf ' + fsRoot+'/'+host["name"] + '_old')
-            if os.path.exists(fsRoot+'/'+host["name"])
+            if os.path.exists(fsRoot+'/'+host["name"]):
                 os.system('mv ' + fsRoot+'/'+host["name"] ' ' + fsRoot+'/'+host["name"]+'_old')
             #move newly created filesystem in place
             os.system('mv ' + fsRoot+'/'+host["name"]+'_new_ ' + fsRoot+'/'+host["name"])
