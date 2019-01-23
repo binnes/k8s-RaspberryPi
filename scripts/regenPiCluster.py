@@ -55,7 +55,7 @@ for sysType in config["testMachines"]["systems"]:
                 p = subprocess.Popen('ls /dev/mapper | grep loop', stdout=subprocess.PIPE, shell=True)
                 (loopDev, err) = p.communicate()
                 p_status = p.wait()
-                os.system('mount')
+                print('mapper device is ' + loopDev)
                 os.system('mount -o loop -t msdos /dev/mapper/' + loopDev + ' /tmp/mnt')
                 file = open('/tmp/mnt/cmdline.txt', 'w')
                 file.write('dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/' + host["name"] + ',vers=3 rw ip=dhcp elevator=deadline rootwait')
