@@ -1,5 +1,8 @@
 pipeline {
-  agent { dockerfile true }
+  agent { dockerfile {
+            filename 'Dockerfile'
+            args '-v /mnt/ssd:/mnt/ssd'
+           }
   stages {
     stage('reset') {
       steps {
