@@ -44,5 +44,6 @@ w
 EOF
 '
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@raspberrypi.local 'sudo dd bs=1M if=/dev/mmcblk0 of=/raspbian_boot.img count=60'
-sudo mv /mnt/ssd/sysRoots/raspberrypi/raspbian_boot.img /mnt/ssd/sysRoots/raspbian_boot.img
+sudo gzip /mnt/ssd/sysRoots/raspberrypi/raspbian_boot.img
+sudo mv /mnt/ssd/sysRoots/raspberrypi/raspbian_boot.img.gz /mnt/ssd/sysRoots/raspbian_boot.img.gz
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@raspberrypi.local 'sudo mount /boot'
