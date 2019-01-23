@@ -52,7 +52,7 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
                 os.system('gzip -d ' + imageName+'.gz')
                 os.system('kpartx -a ' + imageName)
-                p = subprocess.Popen('ls /dev/mapper | grep loop', stdout=subprocess.PIPE, shell=True)p = subprocess.Popen("date", stdout=subprocess.PIPE, shell=True)
+                p = subprocess.Popen('ls /dev/mapper | grep loop', stdout=subprocess.PIPE, shell=True)
                 (loopDev, err) = p.communicate()
                 p_status = p.wait()
                 os.system('mount')
