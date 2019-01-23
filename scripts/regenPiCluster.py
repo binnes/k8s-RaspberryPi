@@ -50,11 +50,14 @@ for sysType in config["testMachines"]["systems"]:
             if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
                 os.system('gzip -d ' + imageName+'.gz')
-                os.system('mount -o loop,offset=4194304 -t msdos ' + imageName + ' /tmp/mnt')
+                os.system('kpartx -a ' + imageName)
+                os.system('mount')
+                os.system('mount -o loop -t msdos /dev/mapper/loop0p1 /tmp/mnt')
                 file = open('/tmp/mnt/cmdline.txt', 'w')
                 file.write('dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/' + host["name"] + ',vers=3 rw ip=dhcp elevator=deadline rootwait')
                 file.close()
                 os.system('umount /tmp/mnt')
+                os.system('kpartx -d ' + imageName)
             #If there is a current filesystem for host then rename to hostname_old
             # deleting previous one if it exist 
             if os.path.exists(fsRoot+'/'+host["name"] + '_old'):
