@@ -6,9 +6,6 @@ import tarfile
 import subprocess
 import paramiko
 
-from pprint import pprint
-
-
 def rebootHost(hostname):
     key = paramiko.RSAKey.from_private_key_file(os.environ['HOME']+'/.ssh/id_rsa')
     c = paramiko.SSHClient()
@@ -23,7 +20,6 @@ with open('scripts/config.json') as f:
 
 fsRoot = config["testMachines"]["NFSrootPath"] + '/sysRoots'
 
-pprint(config)
 # Create a mount point for the boot images
 if not os.path.exists('/tmp/mnt'):
     os.mkdir('/tmp/mnt')
@@ -60,7 +56,6 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('umount /tmp/mnt')
             #If there is a current filesystem for host then rename to hostname_old
             # deleting previous one if it exist 
-
             if os.path.exists(existingDirName):
                 os.system('rm -rf ' + existingDirName)
             if os.path.exists(dirName):
