@@ -3,7 +3,6 @@
 import json
 import os
 import tarfile
-import shutil
 import subprocess
 import paramiko
 
@@ -32,22 +31,25 @@ if not os.path.exists('/tmp/mnt'):
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
+            dirName = fsRoot+'/'+host["name"]
+            existingDirName = dirName + '_old'
+            newDirName = dirName + '_new'
             print(host["name"]+'.local')
-            if os.path.exists(fsRoot+'/'+host["name"]+'_new'):
-                shutil.rmtree(fsRoot+'/'+host["name"] + '_new')
-            os.mkdir(fsRoot+'/'+host["name"]+'_new')
-            os.chdir(fsRoot+'/'+host["name"]+'_new')
+            if os.path.exists(newDirName):
+                os.system('rm -rf ' + newDirName)
+            os.mkdir(newDirName)
+            os.chdir(newDirName)
             tar = tarfile.open(fsRoot + '/' + sysType["fsImage"])
             tar.extractall()
             tar.close()
             # Fix up /etc/hostname
-            file = open(fsRoot+'/'+host["name"]+'_new'+'/etc/hostname','w')
+            file = open(newDirName+'/etc/hostname','w')
             file.write(host["name"])
             file.close()
             # Fix up /etc/hosts
-            os.system("sed -i 's/raspberrypi/"+host["name"]+"/g' " +fsRoot+"/"+host["name"]+"_new"+"/etc/hosts")
+            os.system("sed -i 's/raspberrypi/"+host["name"]+"/g' " +newDirName+"/etc/hosts")
             # Create the sd card image if doesn't exist
-            imageName = fsRoot+'/'+host["name"]+'.img'
+            imageName = dirName+'.img'
             if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
                 os.system('gzip -d ' + imageName+'.gz')
@@ -58,12 +60,13 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('umount /tmp/mnt')
             #If there is a current filesystem for host then rename to hostname_old
             # deleting previous one if it exist 
-            if os.path.exists(fsRoot+'/'+host["name"] + '_old'):
-                shutil.rmtree(fsRoot+'/'+host["name"] + '_old')
-            if os.path.exists(fsRoot+'/'+host["name"]):
-                os.system('mv ' + fsRoot+'/'+host["name"] + ' ' + fsRoot+'/'+host["name"]+'_old')
+
+            if os.path.exists(existingDirName):
+                os.system('rm -rf ' + existingDirName)
+            if os.path.exists(dirName):
+                os.system('mv ' + dirName + ' ' + existingDirName)
             #move newly created filesystem in place
-            os.system('mv ' + fsRoot+'/'+host["name"]+'_new ' + fsRoot+'/'+host["name"])
+            os.system('mv ' + newDirName + ' ' + dirName)
 
 # remove the mount point
 os.rmdir('/tmp/mnt')
