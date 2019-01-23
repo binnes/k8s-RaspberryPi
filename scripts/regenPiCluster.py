@@ -3,6 +3,7 @@
 import json
 import os
 import tarfile
+import shutil
 import paramiko
 
 from pprint import pprint
@@ -30,7 +31,7 @@ for sysType in config["testMachines"]["systems"]:
         for host in sysType["hosts"]:
             print(host["name"]+'.local')
             if os.path.exists(fsRoot+'/'+host["name"]+'_new'):
-                os.system('rmdir -rf ' + fsRoot+'/'+host["name"] + '_new')
+                shutil.rmtree(fsRoot+'/'+host["name"] + '_new')
             os.mkdir(fsRoot+'/'+host["name"]+'_new')
             os.chdir(fsRoot+'/'+host["name"]+'_new')
             tar = tarfile.open(fsRoot + '/' + sysType["fsImage"])
@@ -59,7 +60,7 @@ for sysType in config["testMachines"]["systems"]:
             #If there is a current filesystem for host then rename to hostname_old
             # deleting previous one if it exist 
             if os.path.exists(fsRoot+'/'+host["name"] + '_old'):
-                os.system('rmdir -rf ' + fsRoot+'/'+host["name"] + '_old')
+                shutil.rmtree(fsRoot+'/'+host["name"] + '_old')
             if os.path.exists(fsRoot+'/'+host["name"]):
                 os.system('mv ' + fsRoot+'/'+host["name"] + ' ' + fsRoot+'/'+host["name"]+'_old')
             #move newly created filesystem in place
