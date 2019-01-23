@@ -1,7 +1,7 @@
 pipeline {
   agent { dockerfile {
             filename 'Dockerfile'
-            args '-v /mnt/ssd:/mnt/ssd'
+            args '-v /mnt/ssd:/mnt/ssd -v /tmp:/tmp'
            }
   }
   stages {
