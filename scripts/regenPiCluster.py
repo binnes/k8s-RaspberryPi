@@ -24,8 +24,10 @@ with open('scripts/config.json') as f:
 fsRoot = config["testMachines"]["NFSrootPath"] + '/sysRoots'
 
 pprint(config)
+# Create a mount point for the boot images
+if not os.path.exists('/tmp/mnt'):
+    os.mkdir('/tmp/mnt')
 
-os.mkdir('/tmp/mnt')
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
@@ -61,5 +63,6 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('mv ' + fsRoot+'/'+host["name"] + ' ' + fsRoot+'/'+host["name"]+'_old')
             #move newly created filesystem in place
             os.system('mv ' + fsRoot+'/'+host["name"]+'_new ' + fsRoot+'/'+host["name"])
+
 # remove the mount point
 os.rmdir('/tmp/mnt')
