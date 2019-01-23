@@ -42,17 +42,12 @@ for sysType in config["testMachines"]["systems"]:
             file.write(host["name"])
             file.close()
             # Fix up /etc/hosts
-            fileIn = open(fsRoot+'/'+host["name"]+'_new'+'/etc/hosts')
-            fileOut = open(fsRoot+'/'+host["name"]+'_new'+'/etc/hosts', 'w')
-            for s in fileIn:
-                fileOut.write(s.replace('raspberrypi', host["name"]))
-            fileIn.close()
-            fileOut.close()
+            os.system("sed -i 's/raspberrypi/"+host["name"]+"/g' " +fsRoot+"/"+host["name"]+"_new"+"/etc/hosts")
             # Create the sd card image if doesn't exist
             imageName = fsRoot+'/'+host["name"]+'.img'
             if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
-                os.system('gzip -d ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
+                os.system('gzip -d ' + imageName+'.gz')
                 os.system('mount -o loop,offset=4194304 -t msdos ' + imageName + ' /tmp/mnt')
                 file = open('/tmp/mnt/cmdline.txt', 'w')
                 file.write('dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/' + host["name"] + ',vers=3 rw ip=dhcp elevator=deadline rootwait')
