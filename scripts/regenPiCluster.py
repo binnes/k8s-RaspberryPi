@@ -49,7 +49,7 @@ for sysType in config["testMachines"]["systems"]:
             fileOut.close()
             # Create the sd card image if doesn't exist
             imageName = fsRoot+'/'+host["name"]+'.img'
-            if !(os.path.isfile(imageName)):
+            if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName)
                 os.system('mount -o loop,offset=4194304 -t msdos ' + imageName + ' /tmp/mnt')
                 file = open('/tmp/mnt/cmdline.txt', 'w')
