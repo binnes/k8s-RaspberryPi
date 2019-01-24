@@ -45,6 +45,13 @@ for sysType in config["testMachines"]["systems"]:
             file.close()
             # Fix up /etc/hosts
             os.system("sed -i 's/raspberrypi/"+host["name"]+"/g' " +newDirName+"/etc/hosts")
+            # Fix up networking and configure static IP address
+            file = open(newDirName + '/etc/dhcpcd.conf', "a+")
+            file.write("interface eth0\n")
+            file.write("static ip_address=%s/%s\n", host["IP"], config["testMachines"]["network"]["subnetBits"])
+            file.write("static routers=%s\n" , config["testMachines"]["network"]["routerIP"])
+            file.write("static domain_name_servers=%s\n", config["testMachines"]["network"]["nameservers"])
+            file.close()
             # Create the sd card image if doesn't exist
             imageName = dirName+'.img'
             if not os.path.isfile(imageName):
