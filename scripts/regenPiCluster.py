@@ -11,7 +11,7 @@ def rebootHost(hostname):
     key = paramiko.RSAKey.from_private_key_file(os.environ['HOME']+'/.ssh/id_rsa')
     c = paramiko.SSHClient()
     c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    c.connect( hostname = hostname, username = 'pi', pkey = key )
+    c.connect( hostname, username = 'pi', pkey = key )
     stdin , stdout, stderr = c.exec_command('sudo reboot -n')
     c.close()
 
@@ -63,7 +63,7 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('mv ' + dirName + ' ' + existingDirName)
             #move newly created filesystem in place
             os.system('mv ' + newDirName + ' ' + dirName)
-            rebootHost(host["name"]+'.local')
+            rebootHost(host["IP"])
 
 # remove the mount point
 os.rmdir('/tmp/mnt')
