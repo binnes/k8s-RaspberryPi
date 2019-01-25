@@ -61,7 +61,7 @@ for sysType in config["testMachines"]["systems"]:
             file.close()
             # Create the sd card image if doesn't exist
             cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
-            remoteCommand(host["IP"], 'echo {} | sudo tee /boot/cmdline.txt'.format(cmdline))    
+            remoteCommand(host["IP"], 'echo "{}" | sudo tee /boot/cmdline.txt'.format(cmdline))    
             imageName = dirName+'.img'
             if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
