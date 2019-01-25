@@ -15,23 +15,28 @@
             "hosts": [{
                 "name": "bi-k8sMaster",
                 "IP": "192.168.0.199",
-                "HWaddr": "b8:27:eb:c6:5c:dd"
+                "HWaddr": "b8:27:eb:c6:5c:dd",
+                "kubeRole": "M"
             }, {
                 "name": "bi-k8sNode01",
                 "IP": "192.168.0.198",
-                "HWaddr": "b8:27:eb:2c:7e:1a"
+                "HWaddr": "b8:27:eb:2c:7e:1a",
+                "kubeRole": "N"
             }, {
                 "name": "bi-k8sNode02",
                 "IP": "192.168.0.197",
-                "HWaddr": "b8:27:eb:00:78:90"
+                "HWaddr": "b8:27:eb:00:78:90",
+                "kubeRole": "N"
             }, {
                 "name": "bi-k8sNode03",
                 "IP": "192.168.0.196",
-                "HWaddr": "b8:27:eb:8e:db:2f"
+                "HWaddr": "b8:27:eb:8e:db:2f",
+                "kubeRole": "N"
             }, {
                 "name": "bi-k8sNode04",
                 "IP": "192.168.0.195",
-                "HWaddr": "b8:27:eb:e5:84:45"
+                "HWaddr": "b8:27:eb:e5:84:45",
+                "kubeRole": "N"
             }]            
         }]
     }
