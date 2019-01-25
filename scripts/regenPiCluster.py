@@ -9,16 +9,17 @@ import sys
 
 def remoteCommand(hostname, cmd):
     ret=0
-    print('Rebooting '+hostname)
+    print('Running remote command {} on {}'.format(cmd, hostname))
     try:
         key = paramiko.RSAKey.from_private_key_file(os.environ['HOME']+'/.ssh/id_rsa')
         c = paramiko.SSHClient()
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect( hostname, username = 'pi', pkey = key )
+        print('Executing remote command {}'.format(cmd))
         stdin , stdout, stderr = c.exec_command(cmd)
         c.close()
     except:
-        print("Failed to reboot host %s" % hostname)
+        print("Failed to run remote command on host %s" % hostname)
         ret = 1
     return ret
 
@@ -61,7 +62,8 @@ for sysType in config["testMachines"]["systems"]:
             file.close()
             # Create the sd card image if doesn't exist
             cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
-            remoteCommand(host["IP"], 'echo "{}" | sudo tee /boot/cmdline.txt'.format(cmdline))    
+            os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -n "{}" | sudo tee /boot/cmdline.txt'""".format(host["IP"], cmdline)) 
+            # remoteCommand(host["IP"], "echo -n '"+ cmdline + "' | sudo tee /boot/cmdline.txt")    
             imageName = dirName+'.img'
             if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
@@ -79,7 +81,8 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('mv ' + dirName + ' ' + existingDirName)
             #move newly created filesystem in place
             os.system('mv ' + newDirName + ' ' + dirName)
-            retCode = remoteCommand(host["IP"], 'sudo reboot -n') if retCode == 0 else retCode
+            os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'sudo reboot -n'".format(host["IP"]))
+            # retCode = remoteCommand(host["IP"], 'sudo reboot -n') if retCode == 0 else retCode
 
 # remove the mount point
 os.rmdir('/tmp/mnt')

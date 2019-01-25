@@ -3,9 +3,9 @@
 KUBEHOST=`python scripts/getKubeHost.py`
 
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "curl -sSL get.docker.com | sh && sudo usermod pi -aG docker"
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "newgrp docker"
+# ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "newgrp docker"
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove"
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo sed -i '$s/$/ cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory/' /boot/cmdline.txt"
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo printf '%s' ' cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory/' >> /boot/cmdline.txt"
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo reboot -n"
 
 sleep 60 # let the pi shutdown
