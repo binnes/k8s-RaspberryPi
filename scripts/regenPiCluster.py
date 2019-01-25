@@ -7,7 +7,7 @@ import subprocess
 import paramiko
 import sys
 
-def rebootHost(hostname):
+def remoteCommand(hostname, cmd):
     ret=0
     print('Rebooting '+hostname)
     try:
@@ -15,7 +15,7 @@ def rebootHost(hostname):
         c = paramiko.SSHClient()
         c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         c.connect( hostname, username = 'pi', pkey = key )
-        stdin , stdout, stderr = c.exec_command('sudo reboot -n')
+        stdin , stdout, stderr = c.exec_command(cmd)
         c.close()
     except:
         print("Failed to reboot host %s" % hostname)
@@ -60,13 +60,15 @@ for sysType in config["testMachines"]["systems"]:
             file.write("static domain_name_servers=%s\n" % config["testMachines"]["network"]["nameservers"])
             file.close()
             # Create the sd card image if doesn't exist
+            cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
+            remoteCommand(host["IP"], 'echo {} | sudo tee /boot/cmdline.txt'.format(cmdline))    
             imageName = dirName+'.img'
             if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
                 os.system('gzip -d ' + imageName+'.gz')
                 os.system('mount -o loop,offset=4194304 -t msdos ' + imageName + ' /tmp/mnt')
                 file = open('/tmp/mnt/cmdline.txt', 'w')
-                file.write('dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/%s,vers=3 rw ip=%s::%s:%s:%s:eth0:off elevator=deadline rootwait' % (host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"]))
+                file.write(cmdline)
                 file.close()
                 os.system('umount /tmp/mnt')
             #If there is a current filesystem for host then rename to hostname_old
@@ -77,7 +79,7 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('mv ' + dirName + ' ' + existingDirName)
             #move newly created filesystem in place
             os.system('mv ' + newDirName + ' ' + dirName)
-            retCode = rebootHost(host["IP"]) if retCode == 0 else retCode
+            retCode = remoteCommand(host["IP"], 'sudo reboot -n') if retCode == 0 else retCode
 
 # remove the mount point
 os.rmdir('/tmp/mnt')
