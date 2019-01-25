@@ -7,7 +7,7 @@ NFSRootPath=`python -c "import json ; config = json.load(open('scripts/config.js
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "curl -sSL get.docker.com | sh && sudo usermod pi -aG docker"
 # ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "newgrp docker"
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove"
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "echo -n \"`cat /boot/cmdline.txt` cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory\" | sudo tee /boot/cmdline.txt"
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST 'echo -n `cat /boot/cmdline.txt` cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory | sudo tee /boot/cmdline.txt'
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo reboot -n"
 
 sleep 60 # let the pi shutdown
