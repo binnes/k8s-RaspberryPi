@@ -11,7 +11,7 @@ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST 'ec
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo reboot -n"
 
 sleep 60 # let the pi shutdown
-while ! ping -c 1 raspberrypi.local &>/dev/null; do sleep 1; done
+while ! ping -c 1 $KUBEHOST &>/dev/null; do sleep 1; done
 sleep 60
 
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -"
