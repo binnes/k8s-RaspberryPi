@@ -64,4 +64,3 @@ for sysType in config["testMachines"]["systems"]:
             
 # remove the mount point
 os.rmdir('/tmp/mnt')
-sys.exit(retCode)
