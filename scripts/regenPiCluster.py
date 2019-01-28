@@ -91,10 +91,10 @@ for sysType in config["testMachines"]["systems"]:
             # create a copy of the clean, NFS mounted filesystem on the SD card    
             os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo mkdir /mnt/tmp"'.format(host["IP"]))
             os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo mount /dev/mmcblk0p2 /mnt/tmp"'.format(host["IP"]))
-            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo rsync -xa --progress / /mnt/tmp"'.format(host["IP"]))
+            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo rsync -xa / /mnt/tmp"'.format(host["IP"]))
             # prepare to boot from the sd card image by adding line in fstab to mount root fs and switching /boot/cmdline.txt to original
             partitionUUID = subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} sudo udevadm info -n mmcblk0p2 -q property | sed -n 's/^ID_PART_ENTRY_UUID=//p'".format(host["IP"]), shell=True, executable='/bin/bash').decode("utf-8")
-            os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -e \"{}  /               ext4    defaults,noatime  0       1\" | sudo tee -a /etc/fstab".format(host["IP"], partitionUUID))
+            os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -e \"{}  /               ext4    defaults,noatime  0       1\" | sudo tee -a /etc/fstab'".format(host["IP"], partitionUUID))
             os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo mv /boot/cmdline.txt /boot/cmdline_nfs.txt && sudo mv /boot/cmdline_local.txt /boot/cmdline.txt"'.format(host["IP"]))
             os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo umount /mnt/tmp && rmdir /mnt/tmp"'.format(host["IP"]))
             os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'sudo reboot -n'".format(host["IP"]))
