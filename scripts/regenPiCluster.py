@@ -82,7 +82,7 @@ for sysType in config["testMachines"]["systems"]:
             os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'sudo reboot -n'".format(host["IP"]))
             waitForReboot(host["IP"])
             #determine number of partitions on SD card
-            partitions = subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} grep -c 'mmcblk0p[0-9]' /proc/partitions".format(host["IP"]), shell=True, executable='/bin/bash').decode("utf-8")
+            partitions = subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} grep -c 'mmcblk0p[0-9]' /proc/partitions".format(host["IP"]), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
             if partitions == 1:
                 #only 1 partitions, so create second partition
                 os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -e "n\np\n\n98046\n\nw\n" | sudo fdisk /dev/mmcblk0'""".format(host["IP"]))
