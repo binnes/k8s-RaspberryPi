@@ -5,7 +5,7 @@ while ! ping -c 1 raspberrypi.local &>/dev/null; do sleep 1; done
 sleep 30
 
 echo "*****Updating Raspberry Pi"
-sshpass -p raspberry ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@raspberrypi.local 'sudo apt-get update & sudo apt-get upgrade'
+sshpass -p raspberry ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@raspberrypi.local 'sudo apt-get update && sudo apt-get upgrade && sudo apt-get autoremove && sudo apt-get clean'
 
 echo "*****Adding remote login ssh keys"
 [ -f $HOME/.ssh/id_rsa ] || ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N ''
