@@ -94,6 +94,5 @@ for sysType in config["testMachines"]["systems"]:
             os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo mv /boot/cmdline.txt /boot/cmdline_nfs.txt && sudo mv /boot/cmdline_local.txt /boot/cmdline.txt"'.format(host["IP"])).decode("utf-8"))
             os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo umount /mnt/tmp && rmdir /mnt/tmp"'.format(host["IP"]))
             os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'sudo reboot -n'".format(host["IP"]))
-
 # remove the mount point
 os.rmdir('/tmp/mnt')
