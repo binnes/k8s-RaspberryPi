@@ -94,11 +94,10 @@ for sysType in config["testMachines"]["systems"]:
             os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo rsync -xa  --exclude /mnt / /mnt/tmp"'.format(host["IP"]))
             # prepare to boot from the sd card image by adding line in fstab to mount root fs and switching /boot/cmdline.txt to original
             partitionUUID = subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} sudo udevadm info -n mmcblk0p2 -q property | sed -n 's/^ID_PART_ENTRY_UUID=//p'".format(host["IP"]), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
-            print("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo "PARTUUID={}  /               ext4    defaults,noatime  0       1" | sudo tee -a /etc/fstab'""".format(host["IP"], partitionUUID))
-            os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo "PARTUUID={}  /               ext4    defaults,noatime  0       1" | sudo tee -a /etc/fstab'""".format(host["IP"], partitionUUID))
+            os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo "PARTUUID={}  /               ext4    defaults,noatime  0       1" | sudo tee -a /mnt/tmp/etc/fstab'""".format(host["IP"], partitionUUID))
             cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID={} rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles'.format(partitionUUID)
             os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -n "{}" | sudo tee /boot/cmdline.txt'""".format(host["IP"], cmdline))
-            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo umount /mnt/tmp && rmdir /mnt/tmp"'.format(host["IP"]))
+            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp"'.format(host["IP"]))
             os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'sudo sync && sudo reboot -n'".format(host["IP"]))
 # remove the mount point
 os.rmdir('/tmp/mnt')
