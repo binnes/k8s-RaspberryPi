@@ -28,6 +28,8 @@ def waitForReboot(host):
             time.sleep(1)
     # continue
     s.close()
+    # let OS boot fully before continuing
+    time.sleep(60)
     
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
