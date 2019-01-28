@@ -85,7 +85,7 @@ for sysType in config["testMachines"]["systems"]:
             partitions = subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} grep -c 'mmcblk0p[0-9]' /proc/partitions".format(host["IP"]), shell=True, executable='/bin/bash').decode("utf-8")
             if partitions == 1:
                 #only 1 partitions, so create second partition
-                os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "echo -e \'n\np\n\n98046\n\nw\n\' | sudo fdisk /dev/mmcblk0"'.format(host["IP"]))
+                os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -e "n\np\n\n98046\n\nw\n" | sudo fdisk /dev/mmcblk0'""".format(host["IP"]))
             # create filesystem (deleting any existing fs on the card)
             os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo mkfs.ext4 -F -F /dev/mmcblk0p2"'.format(host["IP"]))
             # create a copy of the clean, NFS mounted filesystem on the SD card    
