@@ -2,6 +2,7 @@
 
 import json
 import os
+import string
 import subprocess
 import time
 import socket
