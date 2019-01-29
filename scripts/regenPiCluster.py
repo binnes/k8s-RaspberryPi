@@ -33,10 +33,10 @@ def waitForReboot(host):
     time.sleep(60)
 
 def runRemoteCommand(host, cmd):
-    os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} {}".format(host, cmd)) 
+    os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "{}"'.format(host, cmd)) 
 
 def runRemoteCommandWithReturn(host, cmd):
-    return subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} {}".format(host, cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
+    return subprocess.check_output('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "{}"'.format(host, cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
     
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
@@ -66,7 +66,7 @@ for sysType in config["testMachines"]["systems"]:
             file.close()
             # Create the sd card image if doesn't exist and reset boot command on SD card in host, finally fixup /etc/fstab
             cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
-            runRemoteCommand(host["IP"], 'echo -n "{}" | sudo tee /boot/cmdline.txt'.format(cmdline)) 
+            runRemoteCommand(host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline)) 
             runRemoteCommand(host["IP"], "sudo sed -i '/ext4/d' /etc/fstab")
             imageName = dirName+'.img'
             if not os.path.isfile(imageName):
@@ -85,7 +85,7 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('mv ' + dirName + ' ' + existingDirName)
             #move newly created filesystem in place
             os.system('mv ' + newDirName + ' ' + dirName)
-            runRemoteCommand(host["IP"], 'sudo reboot -n')
+            runRemoteCommand(host["IP"], "sudo reboot -n")
             waitForReboot(host["IP"])
             #determine number of partitions on SD card
             partitions = runRemoteCommandWithReturn(host["IP"], "grep -c 'mmcblk0p[0-9]' /proc/partitions")
@@ -100,10 +100,10 @@ for sysType in config["testMachines"]["systems"]:
             runRemoteCommand(host["IP"], "sudo rsync -xa  --exclude /mnt / /mnt/tmp")
             # prepare to boot from the sd card image by adding line in fstab to mount root fs and switching /boot/cmdline.txt to original
             partitionUUID = runRemoteCommandWithReturn(host["IP"], "sudo udevadm info -n mmcblk0p2 -q property | sed -n 's/^ID_PART_ENTRY_UUID=//p'")
-            runRemoteCommand(host["IP"], 'echo "PARTUUID={}  /               ext4    defaults,noatime  0       1" | sudo tee -a /mnt/tmp/etc/fstab'.format(partitionUUID))
+            runRemoteCommand(host["IP"], "echo 'PARTUUID={}  /               ext4    defaults,noatime  0       1' | sudo tee -a /mnt/tmp/etc/fstab".format(partitionUUID))
             cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID={} rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles'.format(partitionUUID)
-            runRemoteCommand(host["IP"], 'echo -n "{}" | sudo tee /boot/cmdline.txt'.format(cmdline))
+            runRemoteCommand(host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
             runRemoteCommand(host["IP"], "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp")
-            runRemoteCommand(host["IP"], 'sudo sync && sudo reboot -n')
+            runRemoteCommand(host["IP"], "sudo sync && sudo reboot -n")
 # remove the mount point
 os.rmdir('/tmp/mnt')
