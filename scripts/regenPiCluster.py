@@ -67,7 +67,7 @@ for sysType in config["testMachines"]["systems"]:
             # Create the sd card image if doesn't exist and reset boot command on SD card in host, finally fixup /etc/fstab
             cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
             runRemoteCommand(host["IP"], 'echo -n "{}" | sudo tee /boot/cmdline.txt'.format(cmdline)) 
-            runRemoteCommand(host["IP"], 'sudo sed -i '/ext4/d' /etc/fstab')
+            runRemoteCommand(host["IP"], "sudo sed -i '/ext4/d' /etc/fstab")
             imageName = dirName+'.img'
             if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
