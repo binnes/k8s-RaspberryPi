@@ -34,11 +34,11 @@ def waitForReboot(host):
     time.sleep(60)
 
 def runRemoteCommand(host, cmd):
-    sys.stdout.write('Running remote command <<{}>> on host {}'.format(cmd, host)) ; sys.stdout.flush()
+    sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
     os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "{}"'.format(host, cmd)) 
 
 def runRemoteCommandWithReturn(host, cmd):
-    sys.stdout.write('Running remote command <<{}>> on host {}'.format(cmd, host)) ; sys.stdout.flush()
+    sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
     return subprocess.check_output('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "{}"'.format(host, cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
     
 for sysType in config["testMachines"]["systems"]:
@@ -92,8 +92,8 @@ for sysType in config["testMachines"]["systems"]:
             waitForReboot(host["IP"])
             #determine number of partitions on SD card
             partitions = runRemoteCommandWithReturn(host["IP"], "grep -c 'mmcblk0p[0-9]' /proc/partitions")
-            sys.stdout.write('sdcard has {} partitions'.format(partitions)) ; sys.stdout.flush()
-            if partitions == 1:
+            sys.stdout.write('sdcard has {} partitions\n'.format(partitions)) ; sys.stdout.flush()
+            if partitions == '1':
                 #only 1 partitions, so create second partition
                 runRemoteCommand(host["IP"], "echo -e 'n\np\n\n98046\n\nw\n' | sudo fdisk /dev/mmcblk0")
             # create filesystem (deleting any existing fs on the card)
