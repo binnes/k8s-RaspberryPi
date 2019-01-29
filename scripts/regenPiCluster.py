@@ -31,6 +31,12 @@ def waitForReboot(host):
     s.close()
     # let OS boot fully before continuing
     time.sleep(60)
+
+def runRemoteCommand(host, cmd):
+    os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} {}".format(host, cmd)) 
+
+def runRemoteCommandWithReturn(host, cmd):
+    return subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} {}".format(host["IP"], cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
     
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
@@ -60,8 +66,8 @@ for sysType in config["testMachines"]["systems"]:
             file.close()
             # Create the sd card image if doesn't exist and reset boot command on SD card in host, finally fixup /etc/fstab
             cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
-            os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -n "{}" | sudo tee /boot/cmdline.txt'""".format(host["IP"], cmdline)) 
-            os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'sudo sed -i '/ext4/d' /etc/fstab'".format(host["IP"]))
+            runRemoteCommand(host["IP"], 'echo -n "{}" | sudo tee /boot/cmdline.txt'.format(cmdline)) 
+            runRemoteCommand(host["IP"], 'sudo sed -i '/ext4/d' /etc/fstab')
             imageName = dirName+'.img'
             if not os.path.isfile(imageName):
                 os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
@@ -79,25 +85,25 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('mv ' + dirName + ' ' + existingDirName)
             #move newly created filesystem in place
             os.system('mv ' + newDirName + ' ' + dirName)
-            os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'sudo reboot -n'".format(host["IP"]))
+            runRemoteCommand(host["IP"], 'sudo reboot -n')
             waitForReboot(host["IP"])
             #determine number of partitions on SD card
-            partitions = subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} grep -c 'mmcblk0p[0-9]' /proc/partitions".format(host["IP"]), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
+            partitions = runRemoteCommandWithReturn(host["IP"], "grep -c 'mmcblk0p[0-9]' /proc/partitions")
             if partitions == 1:
                 #only 1 partitions, so create second partition
-                os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -e "n\np\n\n98046\n\nw\n" | sudo fdisk /dev/mmcblk0'""".format(host["IP"]))
+                runRemoteCommand(host["IP"], "echo -e 'n\np\n\n98046\n\nw\n' | sudo fdisk /dev/mmcblk0")
             # create filesystem (deleting any existing fs on the card)
-            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo mkfs.ext4 -F -F /dev/mmcblk0p2"'.format(host["IP"]))
+            runRemoteCommand(host["IP"], "sudo mkfs.ext4 -F -F /dev/mmcblk0p2")
             # create a copy of the clean, NFS mounted filesystem on the SD card    
-            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo mkdir /mnt/tmp"'.format(host["IP"]))
-            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo mount /dev/mmcblk0p2 /mnt/tmp"'.format(host["IP"]))
-            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo rsync -xa  --exclude /mnt / /mnt/tmp"'.format(host["IP"]))
+            runRemoteCommand(host["IP"], "sudo mkdir /mnt/tmp")
+            runRemoteCommand(host["IP"], "sudo mount /dev/mmcblk0p2 /mnt/tmp")
+            runRemoteCommand(host["IP"], "sudo rsync -xa  --exclude /mnt / /mnt/tmp")
             # prepare to boot from the sd card image by adding line in fstab to mount root fs and switching /boot/cmdline.txt to original
-            partitionUUID = subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} sudo udevadm info -n mmcblk0p2 -q property | sed -n 's/^ID_PART_ENTRY_UUID=//p'".format(host["IP"]), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
-            os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo "PARTUUID={}  /               ext4    defaults,noatime  0       1" | sudo tee -a /mnt/tmp/etc/fstab'""".format(host["IP"], partitionUUID))
+            partitionUUID = runRemoteCommandWithReturn(host["IP"], "sudo udevadm info -n mmcblk0p2 -q property | sed -n 's/^ID_PART_ENTRY_UUID=//p'")
+            runRemoteCommand(host["IP"], 'echo "PARTUUID={}  /               ext4    defaults,noatime  0       1" | sudo tee -a /mnt/tmp/etc/fstab'.format(partitionUUID))
             cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID={} rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles'.format(partitionUUID)
-            os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'echo -n "{}" | sudo tee /boot/cmdline.txt'""".format(host["IP"], cmdline))
-            os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp"'.format(host["IP"]))
-            os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} 'sudo sync && sudo reboot -n'".format(host["IP"]))
+            runRemoteCommand(host["IP"], 'echo -n "{}" | sudo tee /boot/cmdline.txt'.format(cmdline))
+            runRemoteCommand(host["IP"], "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp")
+            runRemoteCommand(host["IP"], 'sudo sync && sudo reboot -n')
 # remove the mount point
 os.rmdir('/tmp/mnt')
