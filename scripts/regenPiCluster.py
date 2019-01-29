@@ -56,7 +56,7 @@ class resetPi3BThread (threading.Thread):
             os.system('rm -rf ' + newDirName)
         os.mkdir(newDirName)
         os.chdir(newDirName)
-        os.system('tar -xpf '+fsRoot + '/' + self.sysType["fsImage"] +' -C ' + newDirName)
+        os.system('tar -zxpf '+fsRoot + '/' + self.sysType["fsImage"] +' --same-owner -C ' + newDirName)
         # tar = tarfile.open(fsRoot + '/' + self.sysType["fsImage"])
         # tar.extractall(path=newDirName, numeric_owner=True)
         # tar.close()
