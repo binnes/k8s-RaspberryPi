@@ -64,10 +64,11 @@ class resetPi3BThread (threading.Thread):
         file.write("static routers=%s\n" % self.config["testMachines"]["network"]["routerIP"])
         file.write("static domain_name_servers=%s\n" % self.config["testMachines"]["network"]["nameservers"])
         file.close()
-        # Create the sd card image if doesn't exist and reset boot command on SD card in host, finally fixup /etc/fstab
-        cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(self.host["name"], self.host["IP"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["netmask"], self.host["name"])
-        runRemoteCommand(self.host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline)) 
+        # Fix up file system mounts
         runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /etc/fstab")
+        # Create the sd card image if doesn't exist and reset boot command on SD card in host
+        cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(self.host["name"], self.host["IP"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["netmask"], self.host["name"])
+        runRemoteCommand(self.host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
         imageName = dirName+'.img'
         if not os.path.isfile(imageName):
             os.system('cp ' + fsRoot + '/' + self.sysType["bootImage"] + ' ' + imageName+'.gz')
@@ -98,7 +99,8 @@ class resetPi3BThread (threading.Thread):
         # create a copy of the clean, NFS mounted filesystem on the SD card    
         runRemoteCommand(self.host["IP"], "sudo mkdir /mnt/tmp")
         runRemoteCommand(self.host["IP"], "sudo mount /dev/mmcblk0p2 /mnt/tmp")
-        runRemoteCommand(self.host["IP"], "sudo rsync -xa  --exclude /mnt / /mnt/tmp")
+        #runRemoteCommand(self.host["IP"], "sudo rsync -xa  --exclude /mnt / /mnt/tmp")
+        runRemoteCommand(self.host["IP"], "sudo cp -ax / /mnt/tmp")
         # prepare to boot from the sd card image by adding line in fstab to mount root fs and switching /boot/cmdline.txt to original
         partitionUUID = runRemoteCommandWithReturn(self.host["IP"], "sudo udevadm info -n mmcblk0p2 -q property | sed -n 's/^ID_PART_ENTRY_UUID=//p'")
         runRemoteCommand(self.host["IP"], "echo 'PARTUUID={}  /               ext4    defaults,noatime  0       1' | sudo tee -a /mnt/tmp/etc/fstab".format(partitionUUID))
