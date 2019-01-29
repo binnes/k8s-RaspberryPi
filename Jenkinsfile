@@ -1,7 +1,7 @@
 pipeline {
   agent { dockerfile {
             filename 'Dockerfile'
-            args '-v /mnt/ssd:/mnt/ssd -v /home/brian/.ssh:/root/.ssh --privileged'
+            args '-v /mnt/ssd:/mnt/ssd -v /home/brian/.ssh:/root/.ssh --privileged  --cap-add=CAP_MKNOD'
            }
   }
   stages {
