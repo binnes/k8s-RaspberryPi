@@ -88,14 +88,14 @@ for sysType in config["testMachines"]["systems"]:
                 os.system('mv ' + dirName + ' ' + existingDirName)
             #move newly created filesystem in place
             os.system('mv ' + newDirName + ' ' + dirName)
-            runRemoteCommand(host["IP"], "sudo reboot -n")
-            waitForReboot(host["IP"])
             #determine number of partitions on SD card
             partitions = runRemoteCommandWithReturn(host["IP"], "grep -c 'mmcblk0p[0-9]' /proc/partitions")
             sys.stdout.write('sdcard has {} partitions\n'.format(partitions)) ; sys.stdout.flush()
             if partitions == '1':
                 #only 1 partitions, so create second partition
                 runRemoteCommand(host["IP"], "echo -e 'n\np\n\n98046\n\nw\n' | sudo fdisk /dev/mmcblk0")
+            runRemoteCommand(host["IP"], "sudo reboot -n")
+            waitForReboot(host["IP"])
             # create filesystem (deleting any existing fs on the card)
             runRemoteCommand(host["IP"], "sudo mkfs.ext4 -F -F /dev/mmcblk0p2")
             # create a copy of the clean, NFS mounted filesystem on the SD card    
