@@ -107,6 +107,8 @@ class resetPi3BThread (threading.Thread):
         runRemoteCommand(self.host["IP"], "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp")
         runRemoteCommand(self.host["IP"], "sudo sync && sudo reboot -n")
         os.rmdir(mountPoint)
+        # wait for host to come back on line - so future deploy stages don't fail
+        waitForReboot(self.host["IP"])
 
 
 # Create a mount point for the boot images
