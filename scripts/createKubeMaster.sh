@@ -1,10 +1,10 @@
 #!/usr/bin/bash
 
 KUBEHOST=`python scripts/getKubeHost.py`
-NFSRootPath=`python -c "import json ; config = json.load(open('scripts/config.json')) ; print config['testMachines']['NFSrootPath']"`
+NFSRootPath=`python -c "import json ; config = json.load(open('scripts/config.json')) ; print(config['testMachines']['NFSrootPath'])"`
 
 
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "DEBIAN_FRONTEND=noninteractive curl -sSL get.docker.com | sh && sudo usermod pi -aG docker"
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "curl -sSL get.docker.com | sh && sudo usermod pi -aG docker"
 # ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "newgrp docker"
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove"
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST 'echo -n `cat /boot/cmdline.txt` cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory | sudo tee /boot/cmdline.txt'
@@ -19,9 +19,8 @@ ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "e
 
 ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo apt-get update -q && sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy kubeadm"
 ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo kubeadm config images pull"
-ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo sed -i 's/failureThreshold: 8/failureThreshold: 20/g' /etc/kubernetes/manifests/kube-apiserver.yaml && sudo sed -i 's/initialDelaySeconds: [0-9]\+/initialDelaySeconds: 360/' /etc/kubernetes/manifests/kube-apiserver.yaml"
 ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$KUBEHOST" > $NFSRootPath/sysRoots/joinLog.txt 2>&1
 ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST 'mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config'
-ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST 'mkdir -p $NFSRootPath/sysRoots/kube && sudo cp -i /etc/kubernetes/admin.conf $NFSRootPath/sysRoots/kube/config'
+ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST 'sudo mkdir -p $NFSRootPath/sysRoots/kube && sudo cp -i /etc/kubernetes/admin.conf $NFSRootPath/sysRoots/kube/config'
 ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST 'kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\''\n'\'')"'
 ssh  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@$KUBEHOST "sudo sysctl net.bridge.bridge-nf-call-iptables=1"

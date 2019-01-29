@@ -11,5 +11,11 @@ pipeline {
         sh label: '', script: '''chmod +x scripts/regenPiCluster.py && python ./scripts/regenPiCluster.py'''
       }
     }
+    stage('Kubernetes') {
+      steps {
+        echo 'Build master node'
+        sh label: '', script: '''chmod +x scripts/createKubeMaster.sh && . ./scripts/createKubeMaster.sh'''
+      }
+    }
   }
 }

@@ -8,12 +8,6 @@ import subprocess
 import threading
 import time
 import socket
-import tarfile
-
-
-# Create a mount point for the boot images
-if not os.path.exists('/tmp/mnt'):
-    os.mkdir('/tmp/mnt')
 
 def waitForReboot(host):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,9 +51,6 @@ class resetPi3BThread (threading.Thread):
         os.mkdir(newDirName)
         os.chdir(newDirName)
         os.system('tar -zxpf '+fsRoot + '/' + self.sysType["fsImage"] +' --same-owner -C ' + newDirName)
-        # tar = tarfile.open(fsRoot + '/' + self.sysType["fsImage"])
-        # tar.extractall(path=newDirName, numeric_owner=True)
-        # tar.close()
         # Fix up /etc/hostname
         file = open(newDirName+'/etc/hostname','w')
         file.write(self.host["name"])
@@ -118,7 +109,9 @@ class resetPi3BThread (threading.Thread):
         os.rmdir(mountPoint)
 
 
-retCode = 0
+# Create a mount point for the boot images
+if not os.path.exists('/tmp/mnt'):
+    os.mkdir('/tmp/mnt')
 with open('scripts/config.json') as f:
     config = json.load(f)
 
