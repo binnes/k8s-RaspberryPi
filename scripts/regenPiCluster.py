@@ -36,7 +36,7 @@ def runRemoteCommand(host, cmd):
     os.system("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} {}".format(host, cmd)) 
 
 def runRemoteCommandWithReturn(host, cmd):
-    return subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} {}".format(host["IP"], cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
+    return subprocess.check_output("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} {}".format(host, cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
     
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
