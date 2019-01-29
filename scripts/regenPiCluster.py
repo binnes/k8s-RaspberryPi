@@ -39,6 +39,7 @@ def runRemoteCommandWithReturn(host, cmd):
 
 class resetPi3BThread (threading.Thread):
     def __init__(self, conf, sysType, host):
+        threading.Thread.__init__(self)
         self.config = conf
         self.sysType = sysType
         self.host = host
