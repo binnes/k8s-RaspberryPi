@@ -56,9 +56,10 @@ class resetPi3BThread (threading.Thread):
             os.system('rm -rf ' + newDirName)
         os.mkdir(newDirName)
         os.chdir(newDirName)
-        tar = tarfile.open(fsRoot + '/' + self.sysType["fsImage"])
-        tar.extractall()
-        tar.close()
+        os.system('tar -xpf '+fsRoot + '/' + self.sysType["fsImage"] +' -C ' + newDirName)
+        # tar = tarfile.open(fsRoot + '/' + self.sysType["fsImage"])
+        # tar.extractall(path=newDirName, numeric_owner=True)
+        # tar.close()
         # Fix up /etc/hostname
         file = open(newDirName+'/etc/hostname','w')
         file.write(self.host["name"])
