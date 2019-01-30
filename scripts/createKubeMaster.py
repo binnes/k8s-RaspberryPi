@@ -32,7 +32,7 @@ def runRemoteCommandWithReturn(host, cmd):
 def createKubeMaster(host):
     runRemoteCommand(host, "curl -sSL get.docker.com | sh && sudo usermod pi -aG docker")
     runRemoteCommand(host, "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove")
-    runRemoteCommand(host, "echo -n `cat /boot/cmdline.txt` cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory | sudo tee /boot/cmdline.txt")
+    runRemoteCommand(host, "echo -n ' cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory' | sudo tee -a /boot/cmdline.txt)
     runRemoteCommand(host, "sudo reboot -n")
     waitForReboot(host)
     runRemoteCommand(host, "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -")
