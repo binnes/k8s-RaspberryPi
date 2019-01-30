@@ -63,7 +63,7 @@ class createKubeNode (threading.Thread):
     def run(self):
          prepareKubeHost(self.config, self.host)
          runRemoteCommand(self.host, "sudo sysctl net.bridge.bridge-nf-call-iptables=1")
-         runRemoteCommand(self.host, "sudo {}".format(self.joinCmd)
+         runRemoteCommand(self.host, "sudo {}".format(self.joinCmd))
 
 with open('scripts/config.json') as f:
     config = json.load(f)
