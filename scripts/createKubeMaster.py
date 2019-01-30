@@ -29,7 +29,7 @@ def runRemoteCommandWithReturn(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
     return subprocess.check_output('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "{}"'.format(host, cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
 
-def createKubeMaster(host):
+def createKubeMaster(config, host):
     runRemoteCommand(host, "curl -sSL get.docker.com | sh && sudo usermod pi -aG docker")
     runRemoteCommand(host, "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove")
     runRemoteCommand(host, "echo -n ' cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory' | sudo tee -a /boot/cmdline.txt")
@@ -41,7 +41,7 @@ def createKubeMaster(host):
     runRemoteCommand(host, "sudo kubeadm config images pull")
     initOutput = runRemoteCommandWithReturn(host, "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address={}".format(host))
     runRemoteCommand(host, "mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config")
-    runRemoteCommand(host, "sudo mkdir -p $NFSRootPath/sysRoots/kube && sudo cp -i /etc/kubernetes/admin.conf $NFSRootPath/sysRoots/kube/config")
+    runRemoteCommand(host, "sudo mkdir -p {}/sysRoots/kube && sudo cp -i /etc/kubernetes/admin.conf {}/sysRoots/kube/config".format(config['testMachines']['NFSrootPath'], config['testMachines']['NFSrootPath']))
     runRemoteCommand(host, """kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d \'\\n\')" """)
     runRemoteCommand(host, "sudo sysctl net.bridge.bridge-nf-call-iptables=1")
     return initOutput
@@ -54,7 +54,7 @@ for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
             if host["kubeRole"] == 'M':
-                joinText = createKubeMaster(host["IP"])
+                joinText = createKubeMaster(config, host["IP"])
                 sys.stdout.write('Join text =  <<{}>>\n'.format(joinText)) ; sys.stdout.flush()
                 os.system("""echo "{}" > {}""".format(joinText, config['testMachines']['NFSrootPath']+'/sysRoots/joinLog.txt'))
                 break
