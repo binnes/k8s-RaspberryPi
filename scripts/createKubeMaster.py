@@ -35,10 +35,10 @@ def createKubeMaster(host):
     runRemoteCommand(host, "echo -n `cat /boot/cmdline.txt` cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory | sudo tee /boot/cmdline.txt")
     runRemoteCommand(host, "sudo reboot -n")
     waitForReboot(host)
-    runRemoteCommand(host, "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -"
-    runRemoteCommand(host, "echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee /etc/apt/sources.list.d/kubernetes.list"
-    runRemoteCommand(host, "sudo apt-get update -q && sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy kubeadm"
-    runRemoteCommand(host, "sudo kubeadm config images pull"
+    runRemoteCommand(host, "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -")
+    runRemoteCommand(host, "echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee /etc/apt/sources.list.d/kubernetes.list")
+    runRemoteCommand(host, "sudo apt-get update -q && sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy kubeadm")
+    runRemoteCommand(host, "sudo kubeadm config images pull")
     initOutput = runRemoteCommandWithReturn(host, "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$KUBEHOST")
     runRemoteCommand(host, "mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config")
     runRemoteCommand(host, "sudo mkdir -p $NFSRootPath/sysRoots/kube && sudo cp -i /etc/kubernetes/admin.conf $NFSRootPath/sysRoots/kube/config")
