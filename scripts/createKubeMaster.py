@@ -43,7 +43,7 @@ def createKubeMaster(config, host):
     runRemoteCommand(host, "mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config")
     os.system("mkdir -p {}/sysRoots/kube".format(config['testMachines']['NFSrootPath']))
     kubeConf = runRemoteCommandWithReturn(host, "sudo cat /etc/kubernetes/admin.conf")
-    os.system("echo {} > {}/sysRoots/kube/config".format(kubeConf, config['testMachines']['NFSrootPath']))
+    os.system('echo "{}" > {}/sysRoots/kube/config'.format(kubeConf, config['testMachines']['NFSrootPath']))
     kVersion = runRemoteCommandWithReturn(host, "kubectl version | base64 | tr -d '\n'")
     sys.stdout.write('Kubectl version =  <<{}>> \n'.format(kVersion)) ; sys.stdout.flush()
     runRemoteCommand(host, 'kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version={}"'.format(kVersion))
@@ -60,6 +60,6 @@ for sysType in config["testMachines"]["systems"]:
             if host["kubeRole"] == 'M':
                 joinText = createKubeMaster(config, host["IP"])
                 os.system("""echo "{}" > {}/sysRoots/joinLog.txt""".format(joinText, config['testMachines']['NFSrootPath']))
-                joinCmd = subprocess.check_output("grep join {}/sysRoots/joinLog.txt".format(config['testMachines']['NFSrootPath']), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
+                joinCmd = subprocess.check_output("grep 'kubeadm join' {}/sysRoots/joinLog.txt".format(config['testMachines']['NFSrootPath']), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
                 sys.stdout.write('Join command =  <<{}>>\n'.format(joinCmd)) ; sys.stdout.flush()
                 break
