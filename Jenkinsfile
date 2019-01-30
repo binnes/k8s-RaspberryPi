@@ -8,13 +8,13 @@ pipeline {
     stage('reset') {
       steps {
         echo 'Reset stage'
-        sh label: '', script: '''chmod +x scripts/regenPiCluster.py && python ./scripts/regenPiCluster.py'''
+        sh label: 'Reset all host systems', script: '''chmod +x scripts/regenPiCluster.py && python ./scripts/regenPiCluster.py'''
       }
     }
     stage('Kubernetes') {
       steps {
         echo 'Build master node'
-        sh label: '', script: '''chmod +x scripts/createKubeMaster.py && python ./scripts/createKubeMaster.py'''
+        sh label: 'Build master node', script: '''chmod +x scripts/createKubeCluster.py && python ./scripts/createKubeCluster.py'''
       }
     }
   }

@@ -29,7 +29,7 @@ def runRemoteCommandWithReturn(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
     return subprocess.check_output('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "{}"'.format(host, cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
 
-def createKubeMaster(config, host):
+def prepareKubeHost(config, host):
     runRemoteCommand(host, "curl -sSL get.docker.com | sh && sudo usermod pi -aG docker")
     runRemoteCommand(host, "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove")
     runRemoteCommand(host, "echo -n ' cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory' | sudo tee -a /boot/cmdline.txt")
@@ -38,6 +38,10 @@ def createKubeMaster(config, host):
     runRemoteCommand(host, "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -")
     runRemoteCommand(host, "echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee /etc/apt/sources.list.d/kubernetes.list")
     runRemoteCommand(host, "sudo apt-get update -q && sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy kubeadm")
+
+
+def createKubeMaster(config, host):
+    prepareKubeHost(config, host["IP"])
     runRemoteCommand(host, "sudo kubeadm config images pull")
     initOutput = runRemoteCommandWithReturn(host, "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address={}".format(host))
     runRemoteCommand(host, "mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config")
@@ -50,16 +54,41 @@ def createKubeMaster(config, host):
     runRemoteCommand(host, "sudo sysctl net.bridge.bridge-nf-call-iptables=1")
     return initOutput
 
+class createKubeNode (threading.Thread):
+    def __init__(self, conf, host, joinCmd):
+        threading.Thread.__init__(self)
+        self.config = conf
+        self.host = host
+        self.joinCmd = joinCmd
+    def run(self):
+         prepareKubeHost(self.config, self.host["IP"])
+         runRemoteCommand(self.host, "sudo sysctl net.bridge.bridge-nf-call-iptables=1")
+         runRemoteCommand(self.host, self.joinCmd)
 
 with open('scripts/config.json') as f:
     config = json.load(f)
 
+# Create Kube master
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
             if host["kubeRole"] == 'M':
                 joinText = createKubeMaster(config, host["IP"])
                 os.system("""echo "{}" > {}/sysRoots/joinLog.txt""".format(joinText, config['testMachines']['NFSrootPath']))
-                joinCmd = subprocess.check_output("grep 'kubeadm join' {}/sysRoots/joinLog.txt".format(config['testMachines']['NFSrootPath']), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
-                sys.stdout.write('Join command =  <<{}>>\n'.format(joinCmd)) ; sys.stdout.flush()
                 break
+
+joinCmd = subprocess.check_output("grep 'kubeadm join' {}/sysRoots/joinLog.txt".format(config['testMachines']['NFSrootPath']), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
+sys.stdout.write('Join command =  <<{}>>\n'.format(joinCmd)) ; sys.stdout.flush()
+
+# Create Kube nodes
+threads = []
+for sysType in config["testMachines"]["systems"]:
+    if sysType["type"] == "pi3B":
+        for host in sysType["hosts"]:
+            if host["kubeRole"] == 'N':
+                sys.stdout.write('creating kubernetes node {}\n'.format(host["name"])) ; sys.stdout.flush()
+                thread = createKubeNode(config, host["IP"], joinCmd)
+                thread.start()
+                threads.append(thread)
+for t in threads:
+    t.join()
