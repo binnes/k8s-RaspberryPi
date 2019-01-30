@@ -9,7 +9,7 @@ import socket
 
 def waitForReboot(host):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    time.sleep(60)
+    time.sleep(30)
     while True:
         try:
             s.connect((host, 22))
@@ -19,7 +19,7 @@ def waitForReboot(host):
     # continue
     s.close()
     # let OS boot fully before continuing
-    time.sleep(60)
+    time.sleep(30)
 
 def runRemoteCommand(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()

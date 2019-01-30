@@ -11,7 +11,7 @@ import socket
 
 def waitForReboot(host):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    time.sleep(60)
+    time.sleep(30)
     while True:
         try:
             s.connect((host, 22))
@@ -21,7 +21,7 @@ def waitForReboot(host):
     # continue
     s.close()
     # let OS boot fully before continuing
-    time.sleep(60)
+    time.sleep(30)
 
 def runRemoteCommand(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
@@ -102,8 +102,8 @@ class resetPi3BThread (threading.Thread):
         runRemoteCommand(self.host["IP"], "sudo mount /dev/mmcblk0p2 /mnt/tmp")
 
         os.system('scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {}/{} pi@{}:/home/pi/{}'.format(fsRoot, self.sysType["fsImage"], self.host["IP"], self.sysType["fsImage"]))
-        runRemoteCommand(self.host["IP"], "cd /mnt/tmp && sudo 'tar -zxpf /home/pi/{} -C .'".format(self.sysType["fsImage"]))
-        os.system('rm /home/pi/{}'.format(self.sysType["fsImage"]))
+        runRemoteCommand(self.host["IP"], "cd /mnt/tmp && sudo tar -zxpf /home/pi/{} -C .".format(self.sysType["fsImage"]))
+        runRemoteCommand(self.host["IP"], "rm /home/pi/{}".format(self.sysType["fsImage"]))
 
         # Fix up /etc/hostname
         runRemoteCommand(self.host["IP"], "echo {} | sudo tee /mnt/tmp/etc/hostname".format(self.host["name"]))
