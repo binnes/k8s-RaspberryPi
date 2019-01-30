@@ -13,8 +13,8 @@ pipeline {
     }
     stage('Kubernetes') {
       steps {
-        echo 'Build master node'
-        sh label: 'Build master node', script: '''chmod +x scripts/createKubeCluster.py && python ./scripts/createKubeCluster.py'''
+        echo 'Build Jubernetes cluster'
+        sh label: 'Build cluster nodes', script: '''chmod +x scripts/createKubeCluster.py && python ./scripts/createKubeCluster.py'''
       }
     }
   }
