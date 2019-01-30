@@ -37,11 +37,11 @@ def prepareKubeHost(config, host):
     waitForReboot(host)
     runRemoteCommand(host, "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -")
     runRemoteCommand(host, "echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee /etc/apt/sources.list.d/kubernetes.list")
-    runRemoteCommand(host, "sudo apt-get update -q && sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy kubeadm")
+    runRemoteCommand(host, "sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq kubeadm")
 
 
 def createKubeMaster(config, host):
-    prepareKubeHost(config, host["IP"])
+    prepareKubeHost(config, host)
     runRemoteCommand(host, "sudo kubeadm config images pull")
     initOutput = runRemoteCommandWithReturn(host, "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address={}".format(host))
     runRemoteCommand(host, "mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config")
@@ -61,7 +61,7 @@ class createKubeNode (threading.Thread):
         self.host = host
         self.joinCmd = joinCmd
     def run(self):
-         prepareKubeHost(self.config, self.host["IP"])
+         prepareKubeHost(self.config, self.host)
          runRemoteCommand(self.host, "sudo sysctl net.bridge.bridge-nf-call-iptables=1")
          runRemoteCommand(self.host, self.joinCmd)
 
