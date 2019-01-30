@@ -60,6 +60,6 @@ for sysType in config["testMachines"]["systems"]:
             if host["kubeRole"] == 'M':
                 joinText = createKubeMaster(config, host["IP"])
                 os.system("""echo "{}" > {}/sysRoots/joinLog.txt""".format(joinText, config['testMachines']['NFSrootPath']))
-                joinCmd = subprocess.check_output("grep join {}/sysRoots/joinLog.txt".format(), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
+                joinCmd = subprocess.check_output("grep join {}/sysRoots/joinLog.txt".format(config['testMachines']['NFSrootPath']), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
                 sys.stdout.write('Join command =  <<{}>>\n'.format(joinCmd)) ; sys.stdout.flush()
                 break
