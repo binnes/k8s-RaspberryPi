@@ -96,11 +96,32 @@ class resetPi3BThread (threading.Thread):
         waitForReboot(self.host["IP"])
         # create filesystem (deleting any existing fs on the card)
         runRemoteCommand(self.host["IP"], "sudo mkfs.ext4 -F -F /dev/mmcblk0p2")
+        
         # create a copy of the clean, NFS mounted filesystem on the SD card    
         runRemoteCommand(self.host["IP"], "sudo mkdir /mnt/tmp")
         runRemoteCommand(self.host["IP"], "sudo mount /dev/mmcblk0p2 /mnt/tmp")
+
+        os.system('scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {}/{} pi@{}:/{}'.format(fsRoot, self.sysType["fsImage"], self.host["IP"], self.sysType["fsImage"]))
+        runRemoteCommand(self.host["IP"], "cd /mnt/tmp && sudo 'tar -zxpf /{} -C .'".format(self.sysType["fsImage"]))
+        # Fix up /etc/hostname
+        runRemoteCommand(self.host["IP"], "echo {} | sudo tee /mnt/tmp/etc/hostname".format(self.host["name"]))
+        # Fix up /etc/hosts
+        runRemoteCommand(self.host["IP"], "sudo sed -i 's/raspberrypi/{}/g' /mnt/tmp/etc/hosts".format(self.host["name"]))
+        # Fix up networking and configure static IP address
+        runRemoteCommand(self.host["IP"], """echo '''
+        interface eth0
+        static ip_address={}/{}
+        static routers={}
+        static domain_name_servers={}
+        ''' | sudo tee -a /mnt/tmp/etc/dhcpcd.conf""".format(self.host["IP"], self.config["testMachines"]["network"]["subnetBits"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["nameservers"]))
+
+        # Fix up file system mounts
+        runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /mnt/tmp/etc/fstab")
+
+        # These option for copying the filesystem cause intermittent hangs, so are unreliable
         #runRemoteCommand(self.host["IP"], "sudo rsync -xa  --exclude /mnt / /mnt/tmp")
-        runRemoteCommand(self.host["IP"], "sudo cp -ax / /mnt/tmp")
+        #runRemoteCommand(self.host["IP"], "sudo cp -ax / /mnt/tmp")
+        
         # prepare to boot from the sd card image by adding line in fstab to mount root fs and switching /boot/cmdline.txt to original
         partitionUUID = runRemoteCommandWithReturn(self.host["IP"], "sudo udevadm info -n mmcblk0p2 -q property | sed -n 's/^ID_PART_ENTRY_UUID=//p'")
         runRemoteCommand(self.host["IP"], "echo 'PARTUUID={}  /               ext4    defaults,noatime  0       1' | sudo tee -a /mnt/tmp/etc/fstab".format(partitionUUID))
