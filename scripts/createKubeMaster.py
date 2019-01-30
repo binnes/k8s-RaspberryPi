@@ -56,5 +56,5 @@ for sysType in config["testMachines"]["systems"]:
             if host["kubeRole"] == 'M':
                 joinText = createKubeMaster(host["IP"])
                 sys.stdout.write('Join text =  <<{}>>\n'.format(joinText)) ; sys.stdout.flush()
-                os.system("""echo "{}" >> {}""".format(joinText, config['testMachines']['NFSrootPath']+'/sysRoots/joinLog.txt'))
+                os.system("""echo "{}" > {}""".format(joinText, config['testMachines']['NFSrootPath']+'/sysRoots/joinLog.txt'))
                 break
