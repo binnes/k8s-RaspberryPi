@@ -13,8 +13,9 @@ pipeline {
     }
     stage('Kubernetes') {
       steps {
-        echo 'Build Jubernetes cluster'
+        echo 'Build Kubernetes cluster'
         sh label: 'Build cluster nodes', script: '''chmod +x scripts/createKubeCluster.py && python ./scripts/createKubeCluster.py'''
+        sh label: 'Deploy load balancer', script: '''chmod +x scripts/deployMetalLB.py && python ./scripts/deployMetalLB.py'''
       }
     }
   }
