@@ -23,7 +23,7 @@ def waitForReboot(host):
 
 def runRemoteCommand(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
-    os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} """{}"""'.format(host, cmd)) 
+    os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} '''{}'''""".format(host, cmd)) 
 
 def runRemoteCommandWithReturn(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
@@ -55,6 +55,6 @@ for sysType in config["testMachines"]["systems"]:
         for host in sysType["hosts"]:
             if host["kubeRole"] == 'M':
                 joinText = createKubeMaster(host["IP"])
-                sys.stdout.write('Join text =  <<{}>> on host {}\n'.format(joinText)) ; sys.stdout.flush()
+                sys.stdout.write('Join text =  <<{}>>\n'.format(joinText)) ; sys.stdout.flush()
                 os.system("echo {} >> {}".format(joinText, config['testMachines']['NFSrootPath']+'/sysRoots/joinLog.txt'))
                 break
