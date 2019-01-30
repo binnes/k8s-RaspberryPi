@@ -42,7 +42,9 @@ def createKubeMaster(config, host):
     initOutput = runRemoteCommandWithReturn(host, "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address={}".format(host))
     runRemoteCommand(host, "mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config")
     runRemoteCommand(host, "sudo mkdir -p {}/sysRoots/kube && sudo cp -i /etc/kubernetes/admin.conf {}/sysRoots/kube/config".format(config['testMachines']['NFSrootPath'], config['testMachines']['NFSrootPath']))
-    runRemoteCommand(host, """kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d \'\\n\')" """)
+    kVersion = runRemoteCommandWithReturn(host, "kubectl version | base64 | tr -d '\n'")
+    sys.stdout.write('Kubectl version =  <<{}>> \n'.format(kVersion)) ; sys.stdout.flush()
+    runRemoteCommand(host, 'kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version={}}"'.format(kVersion))
     runRemoteCommand(host, "sudo sysctl net.bridge.bridge-nf-call-iptables=1")
     return initOutput
 
