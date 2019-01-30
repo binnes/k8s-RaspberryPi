@@ -14,7 +14,7 @@ pipeline {
     stage('Kubernetes') {
       steps {
         echo 'Build master node'
-        sh label: '', script: '''chmod +x scripts/createKubeMaster.sh && . ./scripts/createKubeMaster.sh'''
+        sh label: '', script: '''chmod +x scripts/createKubeMaster.py && python ./scripts/createKubeMaster.py'''
       }
     }
   }
