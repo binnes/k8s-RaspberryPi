@@ -111,11 +111,11 @@ class resetPi3BThread (threading.Thread):
         runRemoteCommand(self.host["IP"], "sudo sed -i 's/raspberrypi/{}/g' /mnt/tmp/etc/hosts".format(self.host["name"]))
         # Fix up networking and configure static IP address
         runRemoteCommand(self.host["IP"], """echo '''
-        interface eth0
-        static ip_address={}/{}
-        static routers={}
-        static domain_name_servers={}
-        ''' | sudo tee -a /mnt/tmp/etc/dhcpcd.conf""".format(self.host["IP"], self.config["testMachines"]["network"]["subnetBits"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["nameservers"]))
+interface eth0
+static ip_address={}/{}
+static routers={}
+static domain_name_servers={}
+''' | sudo tee -a /mnt/tmp/etc/dhcpcd.conf""".format(self.host["IP"], self.config["testMachines"]["network"]["subnetBits"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["nameservers"]))
 
         # Fix up file system mounts
         runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /mnt/tmp/etc/fstab")
