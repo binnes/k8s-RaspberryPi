@@ -39,10 +39,10 @@ def createKubeMaster(host):
     runRemoteCommand(host, "echo 'deb http://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee /etc/apt/sources.list.d/kubernetes.list")
     runRemoteCommand(host, "sudo apt-get update -q && sudo DEBIAN_FRONTEND=noninteractive apt-get install -qy kubeadm")
     runRemoteCommand(host, "sudo kubeadm config images pull")
-    initOutput = runRemoteCommandWithReturn(host, "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=$KUBEHOST")
+    initOutput = runRemoteCommandWithReturn(host, "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address={}".format(host))
     runRemoteCommand(host, "mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config")
     runRemoteCommand(host, "sudo mkdir -p $NFSRootPath/sysRoots/kube && sudo cp -i /etc/kubernetes/admin.conf $NFSRootPath/sysRoots/kube/config")
-    runRemoteCommand(host, """kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')" """)
+    runRemoteCommand(host, """kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d \'\\n\')" """)
     runRemoteCommand(host, "sudo sysctl net.bridge.bridge-nf-call-iptables=1")
     return initOutput
 
@@ -56,5 +56,5 @@ for sysType in config["testMachines"]["systems"]:
             if host["kubeRole"] == 'M':
                 joinText = createKubeMaster(host["IP"])
                 sys.stdout.write('Join text =  <<{}>>\n'.format(joinText)) ; sys.stdout.flush()
-                os.system("echo {} >> {}".format(joinText, config['testMachines']['NFSrootPath']+'/sysRoots/joinLog.txt'))
+                os.system("""echo "{}" >> {}""".format(joinText, config['testMachines']['NFSrootPath']+'/sysRoots/joinLog.txt'))
                 break
