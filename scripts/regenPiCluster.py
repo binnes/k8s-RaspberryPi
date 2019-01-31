@@ -66,7 +66,7 @@ class resetPi3BThread (threading.Thread):
         file.close()
         # Setup apt cache if configured
         try:
-            os.system("""echo 'Acquire::http::proxy \"http://{}:3142/\";' | sudo tee /etc/apt/apt.conf.d/02proxy""".format(config['testMachines']['AptCache'], newDirName))
+            os.system("""echo 'Acquire::http::proxy \"http://{}:3142/\";' | sudo tee {}/etc/apt/apt.conf.d/02proxy""".format(config['testMachines']['AptCache'], newDirName))
         except KeyError:
             sys.stdout.write('Apt Cache option not specified\n') ; sys.stdout.flush()
 

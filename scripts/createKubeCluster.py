@@ -30,13 +30,18 @@ def runRemoteCommandWithReturn(host, cmd):
     return subprocess.check_output('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "{}"'.format(host, cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
 
 def prepareKubeHost(config, host):
-    runRemoteCommand(host, "curl -sSL get.docker.com | sh && sudo usermod pi -aG docker")
+    runRemoteCommand(host, "wget -O getDocker.sh get.docker.com")
+    runRemoteCommand(host, "sed -i 's/https:\/\/download.docker.com/http:\/\/HTTPS\/\/\/download.docker.com/g' getDocker.sh")
+    runRemoteCommand(host, "chmod + x getDocker.sh && sh getDocker.sh")
+    runRemoteCommand(host, "rm getDocker.sh")
+    runRemoteCommand(host, "sudo usermod pi -aG docker")
     try:
         runRemoteCommand(host, """echo '''
 {{
     "registry-mirrors": ["http://{}"],
     "insecure-registries": ["{}"]
-}}''' | sudo tee /etc/docker/daemon.json""".format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
+}}
+''' | sudo tee /etc/docker/daemon.json""".format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
         runRemoteCommand(host, "sudo systemctl restart docker")
     except KeyError:
         sys.stdout.write('Docker Cache option not specified\n') ; sys.stdout.flush()
