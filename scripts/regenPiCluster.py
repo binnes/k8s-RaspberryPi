@@ -64,6 +64,12 @@ class resetPi3BThread (threading.Thread):
         file.write("static routers=%s\n" % self.config["testMachines"]["network"]["routerIP"])
         file.write("static domain_name_servers=%s\n" % self.config["testMachines"]["network"]["nameservers"])
         file.close()
+        # Setup apt cache if configured
+        try:
+            os.system("""echo 'Acquire::http { proxy "http://{}:3142"; };' | sudo tee ()/etc/apt/apt.conf.d/02proxy""".format(config['testMachines']['AptCache'], newDirName))
+        except KeyError:
+            sys.stdout.write('Apt Cache option not specified\n') ; sys.stdout.flush()
+
         # Fix up file system mounts
         runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /etc/fstab")
         # Create the sd card image if doesn't exist and reset boot command on SD card in host
@@ -120,9 +126,11 @@ static domain_name_servers={}
         # Fix up file system mounts
         runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /mnt/tmp/etc/fstab")
 
-        # These option for copying the filesystem cause intermittent hangs, so are unreliable
-        #runRemoteCommand(self.host["IP"], "sudo rsync -xa  --exclude /mnt / /mnt/tmp")
-        #runRemoteCommand(self.host["IP"], "sudo cp -ax / /mnt/tmp")
+        # Setup apt cache if configured
+        try:
+            runRemoteCommand(self.host["IP"], """echo 'Acquire::http { proxy "http://{}:3142"; };' | sudo tee /mnt/tmp/etc/apt/apt.conf.d/02proxy""".format(config['testMachines']['AptCache']))
+        except KeyError:
+            sys.stdout.write('Apt Cache option not specified\n') ; sys.stdout.flush()
 
         # prepare to boot from the sd card image by adding line in fstab to mount root fs and switching /boot/cmdline.txt to original
         partitionUUID = runRemoteCommandWithReturn(self.host["IP"], "sudo udevadm info -n mmcblk0p2 -q property | sed -n 's/^ID_PART_ENTRY_UUID=//p'")
