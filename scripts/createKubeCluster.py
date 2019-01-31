@@ -31,6 +31,13 @@ def runRemoteCommandWithReturn(host, cmd):
 
 def prepareKubeHost(config, host):
     runRemoteCommand(host, "curl -sSL get.docker.com | sh && sudo usermod pi -aG docker")
+    if "DockerCache" in config['testMachines']:
+        runRemoteCommand(host, """echo '''
+{
+    "registry-mirrors": ["http://{}}"],
+    "insecure-registries" : ["{}}"]
+}
+''' | sudo tee /etc/docker/daemon.json""".format(config['testMachines']["DockerCache"], config['testMachines']["DockerCache"]))
     runRemoteCommand(host, "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove")
     runRemoteCommand(host, "echo -n ' cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory' | sudo tee -a /boot/cmdline.txt")
     runRemoteCommand(host, "sudo reboot -n")
