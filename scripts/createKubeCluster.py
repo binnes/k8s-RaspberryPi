@@ -37,7 +37,7 @@ def prepareKubeHost(config, host):
     "registry-mirrors": ["http://{}"],
     "insecure-registries": ["{}"]
 }}''' | sudo tee /etc/docker/daemon.json""".format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
-    runRemoteCommand(host, "sudo systemctl restart docker")
+        runRemoteCommand(host, "sudo systemctl restart docker")
     except KeyError:
         sys.stdout.write('Docker Cache option not specified\n') ; sys.stdout.flush()
     runRemoteCommand(host, "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove")
