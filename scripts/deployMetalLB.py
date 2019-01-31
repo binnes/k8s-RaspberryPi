@@ -19,13 +19,14 @@ def runRemoteCommandWithReturn(host, cmd):
 with open('scripts/config.json') as f:
     config = json.load(f)
 
-# Create Kube master
+# Deploy Metal LoadBalancer
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
             if host["kubeRole"] == 'M':
-                runRemoteCommand(host["IP"], "kubectl apply -f k8sManifests/metalLB.yaml")
                 runRemoteCommand(host["IP"], "mkdir -p /home/pi/kubernetes/manifests")
+                os.system("scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no k8sManifests/metalLB.yaml pi@{}:kubernetes/manifests/metalLB.yaml".format(host["IP"]))
+                runRemoteCommand(host["IP"], "kubectl apply -f /home/pi/kubernetes/manifests/metalLB.yaml")
                 os.system("scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no k8sManifests/metalLB-conf.yaml pi@{}:kubernetes/manifests/metalLB-conf.yaml".format(host["IP"]))
                 runRemoteCommand(host["IP"], "sed -i -e 's/IPRange/{}/g' /home/pi/kubernetes/manifests/metalLB-conf.yaml".format(config["kubernetes"]["metalLB"]["IPrange"]))
                 runRemoteCommand(host["IP"], "kubectl apply -f /home/pi/kubernetes/manifests/metalLB-conf.yaml")
