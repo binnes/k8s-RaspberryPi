@@ -1,2 +1,4 @@
 *.code-workspace
 *.key
+.vscode
+.DS_Store
