@@ -7,7 +7,7 @@
     "testMachines": {
         "NFSrootPath": "/mnt/ssd",
         "NFSserver": "192.168.0.190",
-        "AptCache": "192.168.0.190"
+        "AptCache": "192.168.0.190",
         "DockerCache": "192.168.0.190:5000",
         "network" : {
         "netmask" : "255.255.255.0",
