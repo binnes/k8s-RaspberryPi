@@ -38,13 +38,16 @@ def prepareKubeHost(config, host):
     runRemoteCommand(host, "sudo docker version")
     runRemoteCommand(host, "sudo usermod pi -aG docker")
     try:
-        runRemoteCommand(host, '''echo """
-{{
-    \\\"registry-mirrors\\\": [\\\"http://{}\\\"],
-    \\\"insecure-registries\\\": [\\\"{}\\\"]
-}}
-""" | sudo tee /etc/docker/daemon.json'''.format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
+        runRemoteCommand(host, '''cat <<EOF| sudo tee /lib/systemd/system/docker.service.d/http-proxy.conf
+[Service]
+Environment=\\\"HTTP_PROXY=http://{}}:3128/\\\"
+Environment=\\\"HTTPS_PROXY=http://{}}:3128/\\\"
+EOF '''.format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
         runRemoteCommand(host, "sudo systemctl restart docker")
+        os.system("scp /mnt/ssd/docker_mirror/certs/ca.pem pi@{}:docker_registry_ca.pem".format(host))
+        runRemoteCommand(host, "sudo mv docker_registry_ca.pem /usr/share/ca-certificates && sudo chowm root:staff /usr/share/ca-certificates/docker_registry_ca.pem")
+        runRemoteCommand(host, 'echo docker_registry_ca.pem | sudo tee -a /etc/ca-certificates.conf')
+        runRemoteCommand(host, "sudo update-ca-certificates --fresh")
     except KeyError:
         sys.stdout.write('Docker Cache option not specified\n') ; sys.stdout.flush()
     runRemoteCommand(host, "sudo dphys-swapfile swapoff && sudo dphys-swapfile uninstall && sudo update-rc.d dphys-swapfile remove")
