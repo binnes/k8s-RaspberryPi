@@ -31,7 +31,7 @@ def runRemoteCommandWithReturn(host, cmd):
 
 def prepareKubeHost(config, host):
     runRemoteCommand(host, "wget -O getDocker.sh get.docker.com")
-    runRemoteCommand(host, "sed -i 's/https:\/\/download.docker.com/http:\/\/HTTPS\/\/\/download.docker.com/g' getDocker.sh")
+    runRemoteCommand(host, """sed -i "s/https:\/\/download.docker.com/http:\/\/HTTPS\/\/\/download.docker.com/g" getDocker.sh""")
     runRemoteCommand(host, "chmod +x getDocker.sh && sh getDocker.sh")
     runRemoteCommand(host, "rm getDocker.sh")
     runRemoteCommand(host, "sudo usermod pi -aG docker")
