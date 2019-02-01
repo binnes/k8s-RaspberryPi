@@ -8,6 +8,10 @@ The project relies on a central *controller* machine, which I chose not to be a 
 
 ![hardware](docs/images/hardware.png)
 
+The basic cluster will comprise of the following setup
+
+![kubernetes](docs/images/kubernetesCluster.png)
+
 The following documents (in the docs folder of this repo) have all the details you need to create your own Kubernetes cluster:
 
 1. [Hardware](docs/hardware.md) - details of my hardware setup
