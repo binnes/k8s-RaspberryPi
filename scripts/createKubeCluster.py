@@ -38,11 +38,12 @@ def prepareKubeHost(config, host):
     runRemoteCommand(host, "sudo docker version")
     runRemoteCommand(host, "sudo usermod pi -aG docker")
     try:
-        runRemoteCommand(host, '''cat <<EOF| sudo tee /lib/systemd/system/docker.service.d/http-proxy.conf
+        runRemoteCommand(host, "sudo mkdir -p /lib/systemd/system/docker.service.d")
+        runRemoteCommand(host, '''echo """
 [Service]
-Environment=\\\"HTTP_PROXY=http://{}}:3128/\\\"
-Environment=\\\"HTTPS_PROXY=http://{}}:3128/\\\"
-EOF '''.format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
+Environment=\"HTTP_PROXY=http://{}:3128/\"
+Environment=\"HTTPS_PROXY=http://{}:3128/\"
+""" | sudo tee /lib/systemd/system/docker.service.d/http-proxy.conf'''.format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
         runRemoteCommand(host, "sudo systemctl restart docker")
         os.system("scp /mnt/ssd/docker_mirror/certs/ca.pem pi@{}:docker_registry_ca.pem".format(host))
         runRemoteCommand(host, "sudo mv docker_registry_ca.pem /usr/share/ca-certificates && sudo chowm root:staff /usr/share/ca-certificates/docker_registry_ca.pem")
