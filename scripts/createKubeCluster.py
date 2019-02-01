@@ -41,8 +41,8 @@ def prepareKubeHost(config, host):
         runRemoteCommand(host, "sudo mkdir -p /lib/systemd/system/docker.service.d")
         runRemoteCommand(host, '''echo """
 [Service]
-Environment=\"HTTP_PROXY=http://{}:3128/\"
-Environment=\"HTTPS_PROXY=http://{}:3128/\"
+Environment=\"HTTP_PROXY=http://{}/\"
+Environment=\"HTTPS_PROXY=http://{}/\"
 """ | sudo tee /lib/systemd/system/docker.service.d/http-proxy.conf'''.format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
         runRemoteCommand(host, "sudo systemctl restart docker")
         os.system("scp /mnt/ssd/docker_mirror/certs/ca.pem pi@{}:docker_registry_ca.pem".format(host))
