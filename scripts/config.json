@@ -44,6 +44,21 @@
                 "IP": "192.168.0.195",
                 "HWaddr": "b8:27:eb:e5:84:45",
                 "kubeRole": "N"
+            }, {
+                "name": "bi-k8snode05",
+                "IP": "192.168.0.194",
+                "HWaddr": "b8:27:eb:2c:7e:1a",
+                "kubeRole": "N"
+            }, {
+                "name": "bi-k8snode06",
+                "IP": "192.168.0.193",
+                "HWaddr": "b8:27:eb:00:78:90",
+                "kubeRole": "N"
+            }, {
+                "name": "bi-k8snode07",
+                "IP": "192.168.0.192",
+                "HWaddr": "b8:27:eb:8e:db:2f",
+                "kubeRole": "N"
             }]            
         }]
     }
