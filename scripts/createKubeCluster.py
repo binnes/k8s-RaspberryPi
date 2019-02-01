@@ -38,12 +38,12 @@ def prepareKubeHost(config, host):
     runRemoteCommand(host, "sudo docker version")
     runRemoteCommand(host, "sudo usermod pi -aG docker")
     try:
-        runRemoteCommand(host, """echo '''
+        runRemoteCommand(host, '''echo """
 {{
-    "registry-mirrors": ["http://{}"],
-    "insecure-registries": ["{}"]
+    \\\"registry-mirrors\\\": [\\\"http://{}\\\"],
+    \\\"insecure-registries\\\": [\\\"{}\\\"]
 }}
-''' | sudo tee /etc/docker/daemon.json""".format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
+""" | sudo tee /etc/docker/daemon.json'''.format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
         runRemoteCommand(host, "sudo systemctl restart docker")
     except KeyError:
         sys.stdout.write('Docker Cache option not specified\n') ; sys.stdout.flush()
