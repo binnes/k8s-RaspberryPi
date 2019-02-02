@@ -123,6 +123,7 @@ static domain_name_servers={}
         cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID={} rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles'.format(partitionUUID)
         runRemoteCommand(self.host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
         runRemoteCommand(self.host["IP"], "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp")
+        runRempteCommand(self.host["IP"], "sudo apt-get update -qq && sudo apt-get upgrade -qq -y")
         runRemoteCommand(self.host["IP"], "sudo sync && sudo reboot -n")
         # wait for host to come back on line - so future deploy stages don't fail
         waitForReboot(self.host["IP"])
