@@ -66,12 +66,12 @@ class resetPi3BThread (threading.Thread):
         file.close()
         # Setup apt cache if configured
         try:
-            runLocalCommand("""echo 'Acquire::http::proxy \"http://{}:3142/\";' | sudo tee {}/etc/apt/apt.conf.d/02proxy""".format(config['testMachines']['AptCache'], newDirName))
+            runLocalCommand("""echo 'Acquire::http::proxy \"http://{}:3142/\";' | tee {}/etc/apt/apt.conf.d/02proxy""".format(config['testMachines']['AptCache'], newDirName))
         except KeyError:
             sys.stdout.write('Apt Cache option not specified\n') ; sys.stdout.flush()
 
         # Fix up file system mounts
-        runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /etc/fstab")
+        runRemoteCommand(self.host["IP"], "sed -i '/ext4/d' /etc/fstab")
 
         #If there is a current filesystem for host then rename to hostname_old
         # deleting previous one if it exist 
@@ -95,7 +95,7 @@ class resetPi3BThread (threading.Thread):
         # create a copy of the base raspbian filesystem on the SD card    
         runRemoteCommand(self.host["IP"], "sudo mkdir /mnt/tmp")
         runRemoteCommand(self.host["IP"], "sudo mount /dev/mmcblk0p2 /mnt/tmp")
-        runLocalCommand('sudo cp {}/{} {}/home/pi/{}'.format(fsRoot, self.sysType["fsImage"], dirName, self.sysType["fsImage"]))
+        runLocalCommand('cp {}/{} {}/home/pi/{}'.format(fsRoot, self.sysType["fsImage"], dirName, self.sysType["fsImage"]))
         runRemoteCommand(self.host["IP"], "cd /mnt/tmp && sudo tar -zxpf /home/pi/{} -C .".format(self.sysType["fsImage"]))
         runRemoteCommand(self.host["IP"], "rm /home/pi/{}".format(self.sysType["fsImage"]))
 
