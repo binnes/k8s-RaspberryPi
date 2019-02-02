@@ -39,10 +39,6 @@ class resetPi3BThread (threading.Thread):
         self.host = host
     def run(self):
         fsRoot = self.config["testMachines"]["NFSrootPath"] + '/sysRoots'
-        # Create a mount point for the boot images
-        mountPoint = '/tmp/mnt/'+self.host["name"]
-        if not os.path.exists(mountPoint):
-            os.mkdir(mountPoint)
         dirName = fsRoot+'/'+self.host["name"]
         existingDirName = dirName + '_old'
         newDirName = dirName + '_new'
@@ -128,7 +124,6 @@ static domain_name_servers={}
         runRemoteCommand(self.host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
         runRemoteCommand(self.host["IP"], "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp")
         runRemoteCommand(self.host["IP"], "sudo sync && sudo reboot -n")
-        os.rmdir(mountPoint)
         # wait for host to come back on line - so future deploy stages don't fail
         waitForReboot(self.host["IP"])
 
@@ -136,6 +131,10 @@ def createSDimage(config, sysType, host):
     # Create the sd card image if doesn't exist and reset boot command on SD card in host
     fsRoot = config["testMachines"]["NFSrootPath"] + '/sysRoots'
     dirName = fsRoot+'/'+host["name"]
+    # Create a mount point for the boot images
+    mountPoint = '/tmp/mnt/'+self.host["name"]
+    if not os.path.exists(mountPoint):
+        os.mkdir(mountPoint)
     cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
     runRemoteCommand(host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
     imageName = dirName+'.img'
@@ -147,6 +146,7 @@ def createSDimage(config, sysType, host):
         file.write(cmdline)
         file.close()
         os.system('umount ' + mountPoint)
+    os.rmdir(mountPoint)
 
 
 # Create a mount point for the boot images
