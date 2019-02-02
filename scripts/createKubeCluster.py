@@ -73,7 +73,7 @@ def createKubeMaster(config, host):
     prepareKubeHost(config, host)
     runRemoteCommand(host, "sudo kubeadm config images pull")
     initOutput = runRemoteCommandWithReturn(host, "sudo kubeadm init --token-ttl=0 --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address={}".format(host))
-    runRemoteCommand(host, "mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config")
+    runRemoteCommand(host, 'mkdir -p $HOME/.kube && sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config && sudo chown $(id -u):$(id -g) $HOME/.kube/config')
     os.system("mkdir -p {}/sysRoots/kube".format(config['testMachines']['NFSrootPath']))
     kubeConf = runRemoteCommandWithReturn(host, "sudo cat /etc/kubernetes/admin.conf")
     os.system('echo "{}" > {}/sysRoots/kube/config'.format(kubeConf, config['testMachines']['NFSrootPath']))
