@@ -23,6 +23,10 @@ def waitForReboot(host):
     # let OS boot fully before continuing
     time.sleep(30)
 
+def runLocalCommand(cmd):
+    sys.stdout.write('Running local command <<{}>>\n'.format(cmd, host)) ; sys.stdout.flush()
+    os.system('{}'.format(cmd)) 
+
 def runRemoteCommand(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
     os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} "{}"'.format(host, cmd)) 
@@ -46,13 +50,13 @@ class resetPi3BThread (threading.Thread):
             os.system('rm -rf ' + newDirName)
         os.mkdir(newDirName)
         os.chdir(newDirName)
-        os.system('tar -zxpf '+fsRoot + '/' + self.sysType["fsImage"] +' --same-owner -C ' + newDirName)
+        runLocalCommand('tar -zxpf '+fsRoot + '/' + self.sysType["fsImage"] +' --same-owner -C ' + newDirName)
         # Fix up /etc/hostname
         file = open(newDirName+'/etc/hostname','w')
         file.write(self.host["name"])
         file.close()
         # Fix up /etc/hosts
-        os.system("sed -i 's/raspberrypi/"+self.host["name"]+"/g' " +newDirName+"/etc/hosts")
+        runLocalCommand("sed -i 's/raspberrypi/"+self.host["name"]+"/g' " +newDirName+"/etc/hosts")
         # Fix up networking and configure static IP address
         file = open(newDirName + '/etc/dhcpcd.conf', "a+")
         file.write("interface eth0\n")
@@ -62,7 +66,7 @@ class resetPi3BThread (threading.Thread):
         file.close()
         # Setup apt cache if configured
         try:
-            os.system("""echo 'Acquire::http::proxy \"http://{}:3142/\";' | sudo tee {}/etc/apt/apt.conf.d/02proxy""".format(config['testMachines']['AptCache'], newDirName))
+            runLocalCommand("""echo 'Acquire::http::proxy \"http://{}:3142/\";' | sudo tee {}/etc/apt/apt.conf.d/02proxy""".format(config['testMachines']['AptCache'], newDirName))
         except KeyError:
             sys.stdout.write('Apt Cache option not specified\n') ; sys.stdout.flush()
 
@@ -72,11 +76,11 @@ class resetPi3BThread (threading.Thread):
         #If there is a current filesystem for host then rename to hostname_old
         # deleting previous one if it exist 
         if os.path.exists(existingDirName):
-            os.system('rm -rf ' + existingDirName)
+            runLocalCommand('rm -rf ' + existingDirName)
         if os.path.exists(dirName):
-            os.system('mv ' + dirName + ' ' + existingDirName)
+            runLocalCommand('mv ' + dirName + ' ' + existingDirName)
         #move newly created filesystem in place
-        os.system('mv ' + newDirName + ' ' + dirName)
+        runLocalCommand('mv ' + newDirName + ' ' + dirName)
         #determine number of partitions on SD card
         partitions = runRemoteCommandWithReturn(self.host["IP"], "grep -c 'mmcblk0p[0-9]' /proc/partitions")
         sys.stdout.write('sdcard has {} partitions\n'.format(partitions)) ; sys.stdout.flush()
@@ -91,7 +95,7 @@ class resetPi3BThread (threading.Thread):
         # create a copy of the base raspbian filesystem on the SD card    
         runRemoteCommand(self.host["IP"], "sudo mkdir /mnt/tmp")
         runRemoteCommand(self.host["IP"], "sudo mount /dev/mmcblk0p2 /mnt/tmp")
-        os.system('sudo cp {}/{} {}/home/pi/{}'.format(fsRoot, self.sysType["fsImage"], dirName, self.sysType["fsImage"]))
+        runLocalCommand('sudo cp {}/{} {}/home/pi/{}'.format(fsRoot, self.sysType["fsImage"], dirName, self.sysType["fsImage"]))
         runRemoteCommand(self.host["IP"], "cd /mnt/tmp && sudo tar -zxpf /home/pi/{} -C .".format(self.sysType["fsImage"]))
         runRemoteCommand(self.host["IP"], "rm /home/pi/{}".format(self.sysType["fsImage"]))
 
@@ -139,9 +143,9 @@ def createSDimage(config, sysType, host):
     runRemoteCommand(host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
     imageName = dirName+'.img'
     if not os.path.isfile(imageName):
-        os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
-        os.system('gzip -d ' + imageName+'.gz')
-        os.system('mount -o loop,offset=4194304 -t msdos ' + imageName + ' ' + mountPoint)
+        runLocalCommand('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
+        runLocalCommand('gzip -d ' + imageName+'.gz')
+        runLocalCommand('mount -o loop,offset=4194304 -t msdos ' + imageName + ' ' + mountPoint)
         file = open(mountPoint + '/cmdline.txt', 'w')
         file.write(cmdline)
         file.close()
