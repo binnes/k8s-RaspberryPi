@@ -28,13 +28,13 @@ def log(txt):
 
 def runLocalCommand(cmd):
     ret = os.system('{}'.format(cmd))
-    log('Ran local command <<{}>>, return code = {}'.format(cmd, ret))
+    log('Ran local command <<{}>>, return code = {}'.format(cmd, ret)
     return ret
     
 
 def runRemoteCommand(host, cmd):
     ret = os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pi@{} "{}"'.format(host, cmd)) 
-    log('Ran remote command <<{}>> on host {}, return code = '.format(cmd, host, ret))
+    log('Ran remote command <<{}>> on host {}, return code = {}'.format(cmd, host, ret))
     return ret
 
 def runRemoteCommandWithReturn(host, cmd):
