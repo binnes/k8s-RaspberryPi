@@ -132,7 +132,7 @@ def createSDimage(config, sysType, host):
     fsRoot = config["testMachines"]["NFSrootPath"] + '/sysRoots'
     dirName = fsRoot+'/'+host["name"]
     # Create a mount point for the boot images
-    mountPoint = '/tmp/mnt/'+self.host["name"]
+    mountPoint = '/tmp/mnt/'+host["name"]
     if not os.path.exists(mountPoint):
         os.mkdir(mountPoint)
     cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
