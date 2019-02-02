@@ -91,8 +91,7 @@ class resetPi3BThread (threading.Thread):
         # create a copy of the base raspbian filesystem on the SD card    
         runRemoteCommand(self.host["IP"], "sudo mkdir /mnt/tmp")
         runRemoteCommand(self.host["IP"], "sudo mount /dev/mmcblk0p2 /mnt/tmp")
-
-        os.system('scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no {}/{} pi@{}:/home/pi/{}'.format(fsRoot, self.sysType["fsImage"], self.host["IP"], self.sysType["fsImage"]))
+        os.system('sudo cp {}/{} {}/home/pi/{}'.format(fsRoot, self.sysType["fsImage"], dirName, self.sysType["fsImage"]))
         runRemoteCommand(self.host["IP"], "cd /mnt/tmp && sudo tar -zxpf /home/pi/{} -C .".format(self.sysType["fsImage"]))
         runRemoteCommand(self.host["IP"], "rm /home/pi/{}".format(self.sysType["fsImage"]))
 
@@ -123,7 +122,7 @@ static domain_name_servers={}
         cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID={} rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet splash plymouth.ignore-serial-consoles'.format(partitionUUID)
         runRemoteCommand(self.host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
         runRemoteCommand(self.host["IP"], "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp")
-        runRempteCommand(self.host["IP"], "sudo apt-get update -qq && sudo apt-get upgrade -qq -y")
+        runRemoteCommand(self.host["IP"], "sudo apt-get update -qq && sudo apt-get upgrade -qq -y")
         runRemoteCommand(self.host["IP"], "sudo sync && sudo reboot -n")
         # wait for host to come back on line - so future deploy stages don't fail
         waitForReboot(self.host["IP"])
