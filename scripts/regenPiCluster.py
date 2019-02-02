@@ -78,7 +78,7 @@ class resetPi3BThread (threading.Thread):
             sys.stdout.write('Apt Cache option not specified\n') ; sys.stdout.flush()
 
         # Fix up file system mounts
-        runRemoteCommand(self.host["IP"], "sed -i '/ext4/d' {}/etc/fstab").format(newDirName)
+        runRemoteCommand(self.host["IP"], "sed -i '/ext4/d' {}/etc/fstab".format(newDirName))
 
         #If there is a current filesystem for host then rename to hostname_old
         # deleting previous one if it exist 
