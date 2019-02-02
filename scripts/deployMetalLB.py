@@ -8,6 +8,10 @@ import time
 import socket
 
 
+def runLocalCommand(cmd):
+    sys.stdout.write('Running local command <<{}>>\n'.format(cmd, host)) ; sys.stdout.flush()
+    os.system('{}'.format(cmd)) 
+
 def runRemoteCommand(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
     os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} '''{}'''""".format(host, cmd)) 

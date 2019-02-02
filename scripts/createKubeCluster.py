@@ -21,6 +21,10 @@ def waitForReboot(host):
     # let OS boot fully before continuing
     time.sleep(30)
 
+def runLocalCommand(cmd):
+    sys.stdout.write('Running local command <<{}>>\n'.format(cmd, host)) ; sys.stdout.flush()
+    os.system('{}'.format(cmd)) 
+
 def runRemoteCommand(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
     os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@{} '''{}'''""".format(host, cmd)) 
@@ -45,8 +49,8 @@ Environment=\"HTTP_PROXY=http://{}/\"
 Environment=\"HTTPS_PROXY=http://{}/\"
 """ | sudo tee /lib/systemd/system/docker.service.d/http-proxy.conf'''.format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
         runRemoteCommand(host, "sudo systemctl restart docker")
-        os.system("scp /mnt/ssd/docker_mirror/certs/ca.crt pi@{}:docker_registry_ca.crt".format(host))
-        runRemoteCommand(host, "sudo mv docker_registry_ca.crt /usr/share/ca-certificates && sudo chowm root:staff /usr/share/ca-certificates/docker_registry_ca.crt")
+        runLocalCommand("scp /mnt/ssd/docker_mirror/certs/ca.crt pi@{}:/home/pi/docker_registry_ca.crt".format(host))
+        runRemoteCommand(host, "sudo mv /home/pi/docker_registry_ca.crt /usr/share/ca-certificates && sudo chown root:staff /usr/share/ca-certificates/docker_registry_ca.crt")
         runRemoteCommand(host, 'echo docker_registry_ca.crt | sudo tee -a /etc/ca-certificates.conf')
         runRemoteCommand(host, "sudo update-ca-certificates --fresh")
     except KeyError:
