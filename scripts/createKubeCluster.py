@@ -21,13 +21,18 @@ def waitForReboot(host):
     # let OS boot fully before continuing
     time.sleep(30)
 
+def log(txt):
+    sys.stdout.write('{}\n'.format(txt)) ; sys.stdout.flush()
+
 def runLocalCommand(cmd):
-    sys.stdout.write('Running local command <<{}>>\n'.format(cmd, host)) ; sys.stdout.flush()
-    os.system('{}'.format(cmd)) 
+    ret = os.system('{}'.format(cmd))
+    log('Ran local command <<{}>>, return code = {}'.format(cmd, ret))
+    return ret    
 
 def runRemoteCommand(host, cmd):
-    sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
-    os.system("""ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pi@{} '''{}'''""".format(host, cmd)) 
+    ret = os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pi@{} "{}"'.format(host, cmd)) 
+    log('Ran remote command <<{}>> on host {}, return code = {}'.format(cmd, host, ret))
+    return ret
 
 def runRemoteCommandWithReturn(host, cmd):
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
