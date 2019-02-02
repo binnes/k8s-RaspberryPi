@@ -50,7 +50,7 @@ Environment=\"HTTPS_PROXY=http://{}/\"
 """ | sudo tee /lib/systemd/system/docker.service.d/http-proxy.conf'''.format(config['testMachines']['DockerCache'], config['testMachines']['DockerCache']))
         runRemoteCommand(host, "sudo systemctl restart docker")
         runLocalCommand("scp /mnt/ssd/docker_mirror/certs/ca.crt pi@{}:/home/pi/docker_registry_ca.crt".format(host))
-        runRemoteCommand(host, "sudo mv /home/pi/docker_registry_ca.crt /usr/share/ca-certificates && sudo chown root:staff /usr/share/ca-certificates/docker_registry_ca.crt")
+        runRemoteCommand(host, "sudo mv /home/pi/docker_registry_ca.crt /usr/share/ca-certificates && sudo chown root:root /usr/share/ca-certificates/docker_registry_ca.crt && sync")
         runRemoteCommand(host, 'echo docker_registry_ca.crt | sudo tee -a /etc/ca-certificates.conf')
         runRemoteCommand(host, "sudo update-ca-certificates --fresh")
     except KeyError:
