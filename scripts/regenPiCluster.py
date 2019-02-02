@@ -72,18 +72,7 @@ class resetPi3BThread (threading.Thread):
 
         # Fix up file system mounts
         runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /etc/fstab")
-        # Create the sd card image if doesn't exist and reset boot command on SD card in host
-        cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(self.host["name"], self.host["IP"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["netmask"], self.host["name"])
-        runRemoteCommand(self.host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
-        imageName = dirName+'.img'
-        if not os.path.isfile(imageName):
-            os.system('cp ' + fsRoot + '/' + self.sysType["bootImage"] + ' ' + imageName+'.gz')
-            os.system('gzip -d ' + imageName+'.gz')
-            os.system('mount -o loop,offset=4194304 -t msdos ' + imageName + ' ' + mountPoint)
-            file = open(mountPoint + '/cmdline.txt', 'w')
-            file.write(cmdline)
-            file.close()
-            os.system('umount ' + mountPoint)
+
         #If there is a current filesystem for host then rename to hostname_old
         # deleting previous one if it exist 
         if os.path.exists(existingDirName):
@@ -143,6 +132,22 @@ static domain_name_servers={}
         # wait for host to come back on line - so future deploy stages don't fail
         waitForReboot(self.host["IP"])
 
+def createSDimage(config, sysType, host):
+    # Create the sd card image if doesn't exist and reset boot command on SD card in host
+    fsRoot = config["testMachines"]["NFSrootPath"] + '/sysRoots'
+    dirName = fsRoot+'/'+host["name"]
+    cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
+    runRemoteCommand(host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
+    imageName = dirName+'.img'
+    if not os.path.isfile(imageName):
+        os.system('cp ' + fsRoot + '/' + sysType["bootImage"] + ' ' + imageName+'.gz')
+        os.system('gzip -d ' + imageName+'.gz')
+        os.system('mount -o loop,offset=4194304 -t msdos ' + imageName + ' ' + mountPoint)
+        file = open(mountPoint + '/cmdline.txt', 'w')
+        file.write(cmdline)
+        file.close()
+        os.system('umount ' + mountPoint)
+
 
 # Create a mount point for the boot images
 if not os.path.exists('/tmp/mnt'):
@@ -156,6 +161,7 @@ for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
             sys.stdout.write('Resetting host {}\n'.format(host)) ; sys.stdout.flush()
+            createSDimage(config, sysType, host)
             thread = resetPi3BThread(config, sysType, host)
             thread.start()
             threads.append(thread)
