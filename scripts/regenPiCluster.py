@@ -28,7 +28,7 @@ def log(txt):
 
 def runLocalCommand(cmd):
     ret = os.system('{}'.format(cmd))
-    log('Ran local command <<{}>>, return code = {}'.format(cmd, ret)
+    log('Ran local command <<{}>>, return code = {}'.format(cmd, ret))
     return ret
     
 
