@@ -23,15 +23,22 @@ def waitForReboot(host):
     # let OS boot fully before continuing
     time.sleep(30)
 
+def log(txt):
+    sys.stdout.write('{}\n'.format(txt)) ; sys.stdout.flush()
+
 def runLocalCommand(cmd):
-    sys.stdout.write('Running local command <<{}>>\n'.format(cmd, host)) ; sys.stdout.flush()
-    os.system('{}'.format(cmd)) 
+    ret = os.system('{}'.format(cmd))
+    log('Ran local command <<{}>>, return code = {}'.format(cmd, ret))
+    return ret
+    
 
 def runRemoteCommand(host, cmd):
-    sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
-    os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pi@{} "{}"'.format(host, cmd)) 
+    ret = os.system('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pi@{} "{}"'.format(host, cmd)) 
+    log('Ran remote command <<{}>> on host {}, return code = '.format(cmd, host, ret))
+    return ret
 
 def runRemoteCommandWithReturn(host, cmd):
+    # This will raise a CalledProcessError exception if the command returns a non-0 return code
     sys.stdout.write('Running remote command <<{}>> on host {}\n'.format(cmd, host)) ; sys.stdout.flush()
     return subprocess.check_output('ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -q pi@{} "{}"'.format(host, cmd), shell=True, executable='/bin/bash').decode("utf-8").strip(string.whitespace)
 
@@ -58,7 +65,7 @@ class resetPi3BThread (threading.Thread):
         # Fix up /etc/hosts
         runLocalCommand("sed -i 's/raspberrypi/{}/g' {}/etc/hosts".format(self.host["name"], newDirName))
         # Fix up networking and configure static IP address
-        file = open(newDirName + '{}/etc/dhcpcd.conf'.format(newDirName), "a+")
+        file = open('{}/etc/dhcpcd.conf'.format(newDirName), "a+")
         file.write("interface eth0\n")
         file.write("static ip_address=%s/%s\n" % (self.host["IP"], self.config["testMachines"]["network"]["subnetBits"]))
         file.write("static routers=%s\n" % self.config["testMachines"]["network"]["routerIP"])
