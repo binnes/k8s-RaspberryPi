@@ -50,15 +50,15 @@ class resetPi3BThread (threading.Thread):
             os.system('rm -rf ' + newDirName)
         os.mkdir(newDirName)
         os.chdir(newDirName)
-        runLocalCommand('tar -zxpf '+fsRoot + '/' + self.sysType["fsImage"] +' --same-owner -C ' + newDirName)
+        runLocalCommand('tar -zxpf {}/{} --same-owner -C {}'.format(fsRoot, self.sysType["fsImage"], newDirName))
         # Fix up /etc/hostname
         file = open(newDirName+'/etc/hostname','w')
         file.write(self.host["name"])
         file.close()
         # Fix up /etc/hosts
-        runLocalCommand("sed -i 's/raspberrypi/"+self.host["name"]+"/g' " +newDirName+"/etc/hosts")
+        runLocalCommand("sed -i 's/raspberrypi/{}/g' {}/etc/hosts".format(self.host["name"]. newDirName))
         # Fix up networking and configure static IP address
-        file = open(newDirName + '/etc/dhcpcd.conf', "a+")
+        file = open(newDirName + '{}/etc/dhcpcd.conf'.format(newDirName), "a+")
         file.write("interface eth0\n")
         file.write("static ip_address=%s/%s\n" % (self.host["IP"], self.config["testMachines"]["network"]["subnetBits"]))
         file.write("static routers=%s\n" % self.config["testMachines"]["network"]["routerIP"])
@@ -71,7 +71,7 @@ class resetPi3BThread (threading.Thread):
             sys.stdout.write('Apt Cache option not specified\n') ; sys.stdout.flush()
 
         # Fix up file system mounts
-        runRemoteCommand(self.host["IP"], "sed -i '/ext4/d' /etc/fstab")
+        runRemoteCommand(self.host["IP"], "sed -i '/ext4/d' {}/etc/fstab").format(newDirName)
 
         #If there is a current filesystem for host then rename to hostname_old
         # deleting previous one if it exist 
