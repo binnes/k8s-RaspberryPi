@@ -2,7 +2,9 @@
     "kubernetes" : {
         "metalLB" : {
             "IPrange" : "192.168.0.150-192.168.0.169"
-        }
+        },
+        "domain" : "bik8s.home",
+        "ingressIP" : "192.168.0.180"
     },
     "testMachines": {
         "NFSrootPath": "/mnt/ssd",
