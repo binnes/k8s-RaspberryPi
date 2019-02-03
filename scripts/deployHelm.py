@@ -39,6 +39,6 @@ for sysType in config["testMachines"]["systems"]:
                 runRemoteCommand(host["IP"], "wget https://storage.googleapis.com/kubernetes-helm/helm-v2.12.3-linux-arm.tar.gz")
                 runRemoteCommand(host["IP"], "tar zxvf helm-v2.12.3-linux-arm.tar.gz")
                 runRemoteCommand(host["IP"], "sudo cp linux-arm/helm /usr/local/bin")
-                runRemoteCommandhost["IP"], "rm -rf linux-arm && rm helm-v2.12.3-linux-arm.tar.gz")
-                runRemoteCommandhost["IP"], "helm init --service-account tiller --tiller-image jessestuart/tiller")
+                runRemoteCommandhost(["IP"], "rm -rf linux-arm && rm helm-v2.12.3-linux-arm.tar.gz")
+                runRemoteCommandhost(["IP"], "helm init --service-account tiller --tiller-image jessestuart/tiller")
                 
