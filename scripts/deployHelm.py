@@ -41,3 +41,18 @@ for sysType in config["testMachines"]["systems"]:
                 runRemoteCommand(host["IP"], "sudo cp linux-arm/helm /usr/local/bin")
                 runRemoteCommand(host["IP"], "rm -rf linux-arm && rm helm-v2.12.3-linux-arm.tar.gz")
                 runRemoteCommand(host["IP"], "helm init --service-account tiller --tiller-image jessestuart/tiller")
+                # Wait for tiller pod to start before ending this script
+                tillerRunning = False
+                timeout = time.time() + 180
+                log("Waiting for tiller pod to start")
+                while tillerRunning == False and time.time() < timeout:
+                    time.sleep(10)
+                    pods = runRemoteCommandWithReturn(host["IP"], "kubectl get pods --all-namespaces | grep tiller | grep Running")
+                    if "Running" in pods:
+                        tillerRunning = True
+                if tillerRunning == True:
+                    log("Tiller started")
+                else:
+                    log("Tiller failed to start")
+                sys.exit(1)
+                    
