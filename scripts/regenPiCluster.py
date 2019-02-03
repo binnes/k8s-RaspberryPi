@@ -114,16 +114,11 @@ class resetPi3BThread (threading.Thread):
         # Fix up /etc/hosts
         runRemoteCommand(self.host["IP"], "sudo sed -i 's/raspberrypi/{}/g' /mnt/tmp/etc/hosts".format(self.host["name"]))
         # Fix up networking and configure static IP address
-        runRemoteCommand(self.host["IP"], """echo '''
-interface eth0
-static ip_address={}/{}
-static routers={}
-static domain_name_servers={}
-''' | sudo tee -a /mnt/tmp/etc/dhcpcd.conf""".format(self.host["IP"], self.config["testMachines"]["network"]["subnetBits"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["nameservers"]))
+        runRemoteCommand(self.host["IP"], "echo '\ninterface eth0\nstatic ip_address={}/{}\nstatic routers={}\nstatic domain_name_servers={}\n' | sudo tee -a /mnt/tmp/etc/dhcpcd.conf".format(self.host["IP"], self.config["testMachines"]["network"]["subnetBits"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["nameservers"]))
 
         # Set machine ID
         runRemoteCommand(self.host["IP"], "sudo cp /etc/machine-id /mnt/tmp/etc/machine-id")
-        
+
         # Fix up file system mounts
         runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /mnt/tmp/etc/fstab")
 
