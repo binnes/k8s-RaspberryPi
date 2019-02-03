@@ -17,6 +17,7 @@ pipeline {
         sh label: 'Build cluster nodes', script: '''chmod +x scripts/createKubeCluster.py && python ./scripts/createKubeCluster.py'''
         sh label: 'Deploy load balancer', script: '''chmod +x scripts/deployMetalLB.py && python ./scripts/deployMetalLB.py'''
         sh label: 'Deploy helm / tiller', script: '''chmod +x scripts/deployHelm.py && python ./scripts/deployHelm.py'''
+        sh label: 'Deploy storage', script: '''chmod +x scripts/deployStorage.py && python ./scripts/deployStorage.py'''
       }
     }
   }
