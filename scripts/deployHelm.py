@@ -35,10 +35,9 @@ for sysType in config["testMachines"]["systems"]:
             if host["kubeRole"] == 'M':
                 runRemoteCommand(host["IP"], "mkdir -p /home/pi/kubernetes/manifests")
                 runLocalCommand("scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no k8sManifests/helm-rbac.yaml pi@{}:kubernetes/manifests/helm-rbac.yaml".format(host["IP"]))
-                runRemoteCommand(host["IP"], "kubectl apply -f /home/pi/kubernetes/manifests/metalLB.yaml")
+                runRemoteCommand(host["IP"], "kubectl apply -f /home/pi/kubernetes/manifests/helm-rbac.yaml")
                 runRemoteCommand(host["IP"], "wget https://storage.googleapis.com/kubernetes-helm/helm-v2.12.3-linux-arm.tar.gz")
                 runRemoteCommand(host["IP"], "tar zxvf helm-v2.12.3-linux-arm.tar.gz")
                 runRemoteCommand(host["IP"], "sudo cp linux-arm/helm /usr/local/bin")
                 runRemoteCommand(host["IP"], "rm -rf linux-arm && rm helm-v2.12.3-linux-arm.tar.gz")
                 runRemoteCommand(host["IP"], "helm init --service-account tiller --tiller-image jessestuart/tiller")
-                
