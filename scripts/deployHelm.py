@@ -28,7 +28,7 @@ def runRemoteCommandWithReturn(host, cmd):
 with open('scripts/config.json') as f:
     config = json.load(f)
 
-# Deploy Metal LoadBalancer
+# Deploy Helm / tiller
 for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
