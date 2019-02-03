@@ -96,6 +96,9 @@ class resetPi3BThread (threading.Thread):
             runRemoteCommand(self.host["IP"], "echo -e 'n\np\n\n98046\n\nw\n' | sudo fdisk /dev/mmcblk0")
         runRemoteCommand(self.host["IP"], "sudo reboot -n")
         waitForReboot(self.host["IP"])
+
+        # Generate unique machine ID
+        runRemoteCommand(self.host["IP"], "sudo rm /etc/machine-id && sudo rm /var/lib/dbus/machine-id && sudo dbus-uuidgen --ensure=/etc/machine-id")
         # create filesystem (deleting any existing fs on the card)
         runRemoteCommand(self.host["IP"], "sudo mkfs.ext4 -F -F /dev/mmcblk0p2")
         
@@ -118,6 +121,9 @@ static routers={}
 static domain_name_servers={}
 ''' | sudo tee -a /mnt/tmp/etc/dhcpcd.conf""".format(self.host["IP"], self.config["testMachines"]["network"]["subnetBits"], self.config["testMachines"]["network"]["routerIP"], self.config["testMachines"]["network"]["nameservers"]))
 
+        # Set machine ID
+        runRemoteCommand(self.host["IP"], "sudo cp /etc/machine-id /mnt/tmp/etc/machine-id")
+        
         # Fix up file system mounts
         runRemoteCommand(self.host["IP"], "sudo sed -i '/ext4/d' /mnt/tmp/etc/fstab")
 
