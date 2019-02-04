@@ -47,7 +47,11 @@ for sysType in config["testMachines"]["systems"]:
                 log("Waiting for tiller pod to start")
                 while tillerRunning == False and time.time() < timeout:
                     time.sleep(10)
-                    pods = runRemoteCommandWithReturn(host["IP"], "kubectl get pods --all-namespaces | grep tiller | grep Running")
+                    try:
+                        pods = runRemoteCommandWithReturn(host["IP"], "kubectl get pods --all-namespaces | grep tiller")
+                    except subprocess.CalledProcessError, e:
+                        pass
+
                     if "Running" in pods:
                         tillerRunning = True
                 if tillerRunning == True:
