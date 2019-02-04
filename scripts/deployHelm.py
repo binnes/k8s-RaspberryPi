@@ -56,6 +56,8 @@ for sysType in config["testMachines"]["systems"]:
 
                 if tillerRunning == True:
                     log("Tiller started")
+                    # Give tiller pod time to initialise and start serving requests
+                    time.sleep(30)
                 else:
                     log("Tiller failed to start")
                     sys.exit(1)
