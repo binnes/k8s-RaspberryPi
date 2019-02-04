@@ -57,5 +57,5 @@ for sysType in config["testMachines"]["systems"]:
                     log("Tiller started")
                 else:
                     log("Tiller failed to start")
-                sys.exit(1)
+                    sys.exit(1)
                     
