@@ -19,6 +19,7 @@ pipeline {
         sh label: 'Deploy helm / tiller', script: '''chmod +x scripts/deployHelm.py && python ./scripts/deployHelm.py'''
         sh label: 'Deploy storage', script: '''chmod +x scripts/deployStorage.py && python ./scripts/deployStorage.py'''
         sh label: 'Deploy Traefik', script: '''chmod +x scripts/deployTraefik.py && python ./scripts/deployTraefik.py'''
+        sh label: 'Deploy Kubernetes Dashboard', script: '''chmod +x scripts/deployKubernetesDashboard.py && python ./scripts/deployKubernetesDashboard.py'''
       }
     }
   }

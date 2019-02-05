@@ -33,4 +33,6 @@ for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
             if host["kubeRole"] == 'M':
-                runRemoteCommand(host["IP"], "helm install --name traefik stable/traefik --set dashboard.enabled=true,dashboard.domain=traefik.{},rbac.enabled=true,ssl.enabled=true,ssl.enforced=false,ssl.insecureSkipVerify=true".format(config["kubernetes"]["domain"]))
+                # Note: this deployment disables all security, so not a good option for production or publically accessible clusters
+                # TODO: lock down with appropriate security and access control
+                 runRemoteCommand(host["IP"], """helm install stable/kubernetes-dashboard --name kube-dash --set image.repository=k8s.gcr.io/kubernetes-dashboard-arm,enableSkipLogin=true,enableInsecureLogin=true,ingress.annotations."kubernetes\.io/ingress\.class"=traefik,ingress.enabled=true,ingress.hosts[0]='dashboard.{}',service.externalPort=8080,rbac.clusterAdminRole=true --namespace kube-system""".format(config["kubernetes"]["domain"]))
