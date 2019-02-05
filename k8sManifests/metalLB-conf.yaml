@@ -6,7 +6,7 @@ metadata:
 data:
   config: |
     address-pools:
-    - name: my-ip-space
+    - name: default
       protocol: layer2
       addresses:
       - IPRange

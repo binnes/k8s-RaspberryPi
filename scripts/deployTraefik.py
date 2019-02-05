@@ -33,4 +33,4 @@ for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
             if host["kubeRole"] == 'M':
-                runRemoteCommand(host["IP"], "helm install --name traefik stable/traefik --set dashboard.enabled=true --set dashboard.domain=traefik.{} --set rbac.enabled=true  --set externalIP={}".format(config["kubernetes"]["domain"], config["kubernetes"]["ingressIP"]))
+                runRemoteCommand(host["IP"], "helm install --name traefik stable/traefik --set dashboard.enabled=true,dashboard.domain=traefik.{},rbac.enabled=true,loadBalancerIP={},ssl.enabled=true,ssl.enforced=false,ssl.insecureSkipVerify=true".format(config["kubernetes"]["domain"], config["kubernetes"]["ingressIP"]))
