@@ -33,5 +33,5 @@ for sysType in config["testMachines"]["systems"]:
     if sysType["type"] == "pi3B":
         for host in sysType["hosts"]:
             if host["kubeRole"] == 'M':
-                runRemoteCommand(host["IP"], "helm install stable/nfs-client-provisioner --set nfs.server={} --set nfs.path={} --set image.repository=quay.io/external_storage/nfs-client-provisioner-arm --set image.tag=latest --set storageClass.name=standard".format(config["testMachines"]["NFSserver"], config["testMachines"]["NFSrootPath"]))
+                runRemoteCommand(host["IP"], "helm install stable/nfs-client-provisioner --set nfs.server={} --set nfs.path={} --set image.repository=quay.io/external_storage/nfs-client-provisioner-arm --set image.tag=latest --set storageClass.name=standard --set storageClass.defaultClass=true".format(config["testMachines"]["NFSserver"], config["testMachines"]["NFSrootPath"]))
                 
