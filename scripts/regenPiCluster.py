@@ -136,7 +136,7 @@ class resetPi3BThread (threading.Thread):
         runRemoteCommand(self.host["IP"], "sudo umount /mnt/tmp && sudo rmdir /mnt/tmp")
         runRemoteCommand(self.host["IP"], "sudo apt-get update -qq && sudo apt-get dist-upgrade -qq -y")
         runRemoteCommand(self.host["IP"], "sudo apt-get upgrade -qq -y")
-        runRemoteCommand(self.host["IP"], "sudo apt-get clean -qq -y)
+        runRemoteCommand(self.host["IP"], "sudo apt-get clean -qq -y")
         runRemoteCommand(self.host["IP"], "sudo sync && sudo reboot -n")
         # wait for host to come back on line - so future deploy stages don't fail
         waitForReboot(self.host["IP"])
