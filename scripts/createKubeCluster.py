@@ -43,6 +43,7 @@ def prepareKubeHost(config, host):
     runRemoteCommand(host, """curl -fsSL "https://download.docker.com/linux/raspbian/gpg" | sudo apt-key add -qq - >/dev/null""")
     runRemoteCommand(host, """echo "deb [arch=armhf] http://HTTPS///download.docker.com/linux/raspbian stretch edge" | sudo tee /etc/apt/sources.list.d/docker.list""")
     runRemoteCommand(host, "sudo apt-get update -qq >/dev/null")
+    runRemoteCommand(host, "sudo apt-get upgrade -y -qq")
     runRemoteCommand(host, "sudo apt-get install -y -qq --no-install-recommends docker-ce >/dev/null")
     runRemoteCommand(host, "sudo docker version")
     runRemoteCommand(host, "sudo usermod pi -aG docker")
