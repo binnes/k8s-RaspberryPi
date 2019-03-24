@@ -148,7 +148,7 @@ def createSDimage(config, sysType, host):
     mountPoint = '/tmp/mnt/'+host["name"]
     if not os.path.exists(mountPoint):
         os.mkdir(mountPoint)
-    cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
+    cmdline = 'dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot={}:{}/{},vers=3 rw ip={}::{}:{}:{}:eth0:off elevator=deadline rootwait'.format(config["testMachines"]["NFSserver"], fsRoot, host["name"], host["IP"], config["testMachines"]["network"]["routerIP"], config["testMachines"]["network"]["netmask"], host["name"])
     runRemoteCommand(host["IP"], "echo -n '{}' | sudo tee /boot/cmdline.txt".format(cmdline))
     imageName = dirName+'.img'
     if not os.path.isfile(imageName):
