@@ -30,12 +30,12 @@ On a raspberry pi create a file /etc/docker/daemon.json run the following:
 ```bash
 cat <<EOF| sudo tee /lib/systemd/system/docker.service.d/http-proxy.conf
 [Service]
-Environment="HTTP_PROXY=http://192.168.0.190:3128/"
-Environment="HTTPS_PROXY=http://192.168.0.190:3128/"
+Environment="HTTP_PROXY=http://192.168.201.1:3128/"
+Environment="HTTPS_PROXY=http://192.168.201.1:3128/"
 EOF 
 ```
 
-replace 192.168.0.190 with the address of your registry host machine.
+replace 192.168.0. with the address of your registry host machine.
 
 You also need to add the CA Root certificate for the mirror to the trusted roots on each machine.  The root certificate is located at **/mnt/ssd/docker_mirror/certs/ca.pem**, which need to be copied to **/usr/share/ca-certificates** and rename it to docker_registry_ca.pem.  Then add the certificate with command ```echo "docker_registry_ca.pem" | sudo tee -a /etc/ca-certificates.conf``` then make it live with command ```update-ca-certificates --fresh```
 

@@ -29,7 +29,7 @@ sudo tar -zxvf /mnt/ssd/sysRoots/base-raspbian-stretch-lite.tgz
 
 echo "*****Rebooting pi to use NFS filesystem"
 # Update the boot filesystem on host raspberry pi to use the NFS file system and reboot the host
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@raspberrypi.local  'echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.0.190:/mnt/ssd/sysRoots/raspberrypi,vers=3 rw ip=dhcp elevator=deadline rootwait" | sudo dd of=/boot/cmdline.txt'
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@raspberrypi.local  'echo "dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=/dev/nfs nfsroot=192.168.201.1:/mnt/ssd/sysRoots/raspberrypi,vers=3 rw ip=dhcp elevator=deadline rootwait" | sudo dd of=/boot/cmdline.txt'
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no pi@raspberrypi.local  'sudo reboot -n'
 
 echo "*****Generating SD card image for raspberrypi.local"
