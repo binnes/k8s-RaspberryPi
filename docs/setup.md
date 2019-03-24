@@ -19,7 +19,7 @@ Before running the setup script on the controller you need to do some preparatio
 - Have an NFS mount exported (doesn't need to be on the controller machine, but if not exported from the controller machine then the NFS share needs to be mounted on the controller machine).  My NFS is exported with the following line in the /etc/exports file on the controller (modify the subnet if you are not using 192.168.0.0/24 for your network):
 
     ```text
-    /mnt/ssd	192.168.0.0/24(rw,sync,no_subtree_check,no_root_squash)
+    /mnt/ssd	192.168.0.0/24(rw,async,no_subtree_check,no_root_squash)
     ```
 
 - If you are not exporting the NFS filesystem from the controller, then the NFS file system needs to be mounted on the controller system at the same location it is exported from (e.g. /mnt/ssd)
