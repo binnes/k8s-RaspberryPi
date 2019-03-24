@@ -1,20 +1,20 @@
 {
     "kubernetes" : {
         "metalLB" : {
-            "IPrange" : "192.168.0.150-192.168.0.169"
+            "IPrange" : "192.168.201.20-192.168.201.49"
         },
         "domain" : "bik8s.home"
     },
     "testMachines": {
         "NFSrootPath": "/mnt/ssd",
-        "NFSserver": "192.168.0.190",
-        "AptCache": "192.168.0.190",
-        "DockerCache": "192.168.0.190:3128",
+        "NFSserver": "192.168.201.1",
+        "AptCache": "192.168.201.1",
+        "DockerCache": "192.168.201.1:3128",
         "network" : {
         "netmask" : "255.255.255.0",
         "subnetBits" : "24",
-            "routerIP" : "192.168.0.1",
-            "nameservers" : "192.168.0.4 192.168.0.3"
+            "routerIP" : "192.168.201.1",
+            "nameservers" : "192.168.201.1 192.168.0.4"
         },
         "systems" : [{
             "type": "pi3B",
@@ -22,42 +22,42 @@
             "bootImage": "raspbian_boot.img.gz",
             "hosts": [{
                 "name": "bi-k8smaster",
-                "IP": "192.168.0.199",
+                "IP": "192.168.201.200",
                 "HWaddr": "b8:27:eb:c6:5c:dd",
                 "kubeRole": "M"
             }, {
                 "name": "bi-k8snode01",
-                "IP": "192.168.0.198",
+                "IP": "192.168.201.201",
                 "HWaddr": "b8:27:eb:2c:7e:1a",
                 "kubeRole": "N"
             }, {
                 "name": "bi-k8snode02",
-                "IP": "192.168.0.197",
+                "IP": "192.168.201.202",
                 "HWaddr": "b8:27:eb:00:78:90",
                 "kubeRole": "N"
             }, {
                 "name": "bi-k8snode03",
-                "IP": "192.168.0.196",
+                "IP": "192.168.201.203",
                 "HWaddr": "b8:27:eb:8e:db:2f",
                 "kubeRole": "N"
             }, {
                 "name": "bi-k8snode04",
-                "IP": "192.168.0.195",
+                "IP": "192.168.201.204",
                 "HWaddr": "b8:27:eb:e5:84:45",
                 "kubeRole": "N"
             }, {
                 "name": "bi-k8snode05",
-                "IP": "192.168.0.194",
+                "IP": "192.168.201.205",
                 "HWaddr": "b8:27:eb:2c:7e:1a",
                 "kubeRole": "N"
             }, {
                 "name": "bi-k8snode06",
-                "IP": "192.168.0.193",
+                "IP": "192.168.201.206",
                 "HWaddr": "b8:27:eb:00:78:90",
                 "kubeRole": "N"
             }, {
                 "name": "bi-k8snode07",
-                "IP": "192.168.0.192",
+                "IP": "192.168.201.207",
                 "HWaddr": "b8:27:eb:8e:db:2f",
                 "kubeRole": "N"
             }]            
